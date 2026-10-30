@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1464f4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Quản Lý">
 <title>Quản Lý Cuộc Sống</title>
 <style>
 :root {
@@ -169,6 +172,7 @@ footer { max-width: 1100px; margin: 0 auto; padding: 0 16px; color: var(--muted)
     <div>
       <h1>📋 Quản Lý Cuộc Sống</h1>
       <small id="today-label"></small>
+      <small id="sync-label" class="muted"></small>
     </div>
     <button class="btn sm primary" data-act="quickAdd">+ Việc nhanh</button>
   </div>
@@ -179,6 +183,7 @@ footer { max-width: 1100px; margin: 0 auto; padding: 0 16px; color: var(--muted)
   <span>Dữ liệu được lưu trên trình duyệt của máy này.</span>
   <button class="btn sm" data-act="backup">⬇️ Sao lưu</button>
   <button class="btn sm" data-act="restore">⬆️ Khôi phục</button>
+  <button class="btn sm" data-act="syncSettings">☁️ Đồng bộ online</button>
   <input type="file" id="restore-file" accept="application/json" hidden>
 </footer>
 <div id="modal" hidden></div>
@@ -191,8 +196,9 @@ footer { max-width: 1100px; margin: 0 auto; padding: 0 16px; color: var(--muted)
 const KEY = 'quanlycuocsong_v1';
 const DEFAULT = {
   tasks: [], ads: [], customers: [], staff: [], rrIndex: 0, teamTasks: [],
-  finance: [], habits: [], goals: [], journal: []
+  finance: [], habits: [], goals: [], journal: [], deleted: {}, rrU: 0
 };
+const ARRAYS = ['tasks', 'ads', 'customers', 'staff', 'teamTasks', 'finance', 'habits', 'goals', 'journal'];
 let S = load();
 
 function load() {
@@ -203,10 +209,113 @@ function load() {
     return structuredClone(DEFAULT);
   }
 }
-function save() {
+function store() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); }
   catch (e) { toast('⚠️ Không lưu được dữ liệu trên trình duyệt này'); }
 }
+function save() {
+  stamp();
+  store();
+  scheduleSync();
+}
+
+// Đánh dấu thời điểm sửa (_u) cho từng mục đã thay đổi – dùng để gộp dữ liệu giữa các máy
+let SNAP = {};
+const itemKey = x => { const { _u, ...rest } = x; return JSON.stringify(rest); };
+function snapshot() {
+  SNAP = {};
+  ARRAYS.forEach(k => S[k].forEach(x => { SNAP[x.id] = itemKey(x); }));
+}
+function stamp() {
+  const now = Date.now();
+  ARRAYS.forEach(k => S[k].forEach(x => {
+    const j = itemKey(x);
+    if (SNAP[x.id] !== j) { x._u = now; SNAP[x.id] = j; }
+  }));
+}
+
+// Gộp 2 bản dữ liệu: mục nào sửa sau thì thắng, mục đã xóa ở bất kỳ máy nào thì bị bỏ
+function mergeState(local, remote) {
+  const out = Object.assign(structuredClone(DEFAULT), remote);
+  const cutoff = Date.now() - 90 * 864e5;
+  out.deleted = {};
+  Object.entries(Object.assign({}, remote.deleted, local.deleted)).forEach(([id, t]) => { if (t > cutoff) out.deleted[id] = t; });
+  ARRAYS.forEach(k => {
+    const map = new Map();
+    (remote[k] || []).forEach(x => map.set(x.id, x));
+    (local[k] || []).forEach(x => {
+      const r = map.get(x.id);
+      if (!r || (x._u || 0) > (r._u || 0)) map.set(x.id, x);
+    });
+    out[k] = [...map.values()].filter(x => !out.deleted[x.id]);
+  });
+  if ((local.rrU || 0) > (remote.rrU || 0)) { out.rrIndex = local.rrIndex; out.rrU = local.rrU; }
+  return out;
+}
+
+// ===== Đồng bộ online qua Google Apps Script =====
+const SYNC_KEY = KEY + '_sync';
+let SYNC = (() => { try { return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; } catch (e) { return {}; } })();
+let syncing = false, syncTimer = null, localRev = 0, needRender = false;
+const saveSync = () => { try { localStorage.setItem(SYNC_KEY, JSON.stringify(SYNC)); } catch (e) { /* bỏ qua */ } };
+
+function setSyncLabel(text, cls) {
+  const el = document.getElementById('sync-label');
+  if (el) { el.textContent = text; el.className = cls || ''; }
+}
+function scheduleSync(delay = 1500) {
+  if (!SYNC.url) return;
+  localRev++;
+  SYNC.dirty = true;
+  saveSync();
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncNow, delay);
+}
+async function syncNow() {
+  if (!SYNC.url || syncing) return;
+  syncing = true;
+  setSyncLabel('☁️ Đang đồng bộ...');
+  const before = JSON.stringify(S);
+  try {
+    const r = await (await fetch(SYNC.url + '?key=' + encodeURIComponent(SYNC.key))).json();
+    if (!r.ok) throw new Error(r.error || 'Máy chủ báo lỗi');
+    if (r.version !== SYNC.version) {
+      if (r.data) { S = mergeState(S, r.data); snapshot(); }
+      SYNC.version = r.version;
+    }
+    for (let i = 0; i < 3 && SYNC.dirty; i++) {
+      const sentRev = localRev;
+      const p = await (await fetch(SYNC.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ key: SYNC.key, baseVersion: SYNC.version, data: S })
+      })).json();
+      if (p.conflict) {
+        if (p.data) { S = mergeState(S, p.data); snapshot(); }
+        SYNC.version = p.version;
+        continue;
+      }
+      if (!p.ok) throw new Error(p.error || 'Không gửi được dữ liệu');
+      SYNC.version = p.version;
+      SYNC.dirty = localRev !== sentRev;
+    }
+    store();
+    saveSync();
+    SYNC.lastOk = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    setSyncLabel('☁️ Đã đồng bộ ' + SYNC.lastOk, 'green-t');
+    if (JSON.stringify(S) !== before) {
+      if ($('#modal').hidden) render(); else needRender = true;
+    }
+  } catch (e) {
+    setSyncLabel('⚠️ Chưa đồng bộ được – ' + e.message, 'red-t');
+  } finally {
+    syncing = false;
+    saveSync();
+    if (SYNC.dirty) { clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 30000); }
+  }
+}
+setInterval(() => { if (SYNC.url && document.visibilityState === 'visible') syncNow(); }, 60000);
+document.addEventListener('visibilitychange', () => { if (SYNC.url && document.visibilityState === 'visible') syncNow(); });
 
 // ===== Danh mục =====
 const TABS = [
@@ -297,7 +406,7 @@ function peekTurn() {
 }
 function takeTurn() {
   const s = peekTurn();
-  if (s) S.rrIndex = (S.rrIndex + 1) % activeStaff().length;
+  if (s) { S.rrIndex = (S.rrIndex + 1) % activeStaff().length; S.rrU = Date.now(); }
   return s;
 }
 
@@ -345,7 +454,11 @@ function openForm(title, fields, values, onSave) {
   const first = form.querySelector('input, textarea, select');
   if (first) first.focus();
 }
-function closeModal() { $('#modal').hidden = true; $('#modal').innerHTML = ''; }
+function closeModal() {
+  $('#modal').hidden = true;
+  $('#modal').innerHTML = '';
+  if (needRender) { needRender = false; render(); }
+}
 $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
 
 // ===== Gợi ý công việc ngày mai =====
@@ -771,7 +884,12 @@ const journalFields = () => [
 ];
 
 const find = (arr, id) => S[arr].find(x => x.id === id);
-const del = (arr, id, what) => { if (confirm(`Xóa ${what} này?`)) { S[arr] = S[arr].filter(x => x.id !== id); save(); render(); } };
+const del = (arr, id, what) => {
+  if (!confirm(`Xóa ${what} này?`)) return;
+  S[arr] = S[arr].filter(x => x.id !== id);
+  S.deleted[id] = Date.now();
+  save(); render();
+};
 const nowIso = () => new Date().toLocaleString('sv-SE').replace(' ', 'T');
 const logTeam = (x, msg) => { (x.log = x.log || []).push({ t: nowIso(), msg }); };
 
@@ -919,7 +1037,39 @@ const ACTS = {
     a.click();
     URL.revokeObjectURL(a.href);
   },
-  restore: () => $('#restore-file').click()
+  restore: () => $('#restore-file').click(),
+
+  syncSettings: () => {
+    const m = $('#modal');
+    m.innerHTML = `<div class="modal-box"><h3>☁️ Đồng bộ online</h3>
+      <p class="muted" style="margin-top:0;font-size:13.5px">Dùng chung dữ liệu giữa điện thoại và máy tính, tự nhận lead từ Pancake.
+        Dữ liệu lưu trong Google Drive của anh. Cách lấy 2 thông tin dưới đây: xem file HUONG-DAN.md.</p>
+      <form class="form" id="sform">
+        ${fieldHtml({ k: 'url', label: 'Đường dẫn Web App (https://script.google.com/...)', type: 'url', full: true, required: true }, SYNC.url)}
+        ${fieldHtml({ k: 'key', label: 'Mã bí mật', full: true, required: true }, SYNC.key)}
+        <div class="row-end">${SYNC.url ? '<button type="button" class="btn danger" data-act="syncOff">Ngắt kết nối</button>' : ''}
+          <button type="button" class="btn ghost" data-close>Đóng</button><button class="btn primary">Kết nối & đồng bộ</button></div>
+      </form></div>`;
+    m.hidden = false;
+    m.querySelector('[data-close]').onclick = closeModal;
+    $('#sform').onsubmit = e => {
+      e.preventDefault();
+      const f = e.target.elements, url = f.url.value.trim();
+      if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)) return toast('Đường dẫn phải bắt đầu bằng https://script.google.com/');
+      SYNC = { url, key: f.key.value.trim(), version: -1, dirty: true };
+      saveSync();
+      closeModal();
+      syncNow();
+    };
+  },
+  syncOff: () => {
+    if (!confirm('Ngắt đồng bộ? Dữ liệu trên máy này vẫn được giữ nguyên.')) return;
+    SYNC = {};
+    saveSync();
+    closeModal();
+    setSyncLabel('');
+    toast('Đã ngắt đồng bộ online');
+  }
 };
 
 function importCustomers(text, source, autoAssign) {
@@ -993,6 +1143,7 @@ $('#restore-file').addEventListener('change', async e => {
     if (typeof d !== 'object' || !Array.isArray(d.tasks)) throw new Error('bad');
     if (!confirm('Khôi phục sẽ thay thế toàn bộ dữ liệu hiện tại. Tiếp tục?')) return;
     S = Object.assign(structuredClone(DEFAULT), d);
+    SNAP = {};
     save(); render(); toast('Đã khôi phục dữ liệu');
   } catch (err) {
     toast('File sao lưu không hợp lệ');
@@ -1010,7 +1161,9 @@ function render() {
 }
 ACTS.tab = el => { UI.tab = el.dataset.v; render(); window.scrollTo(0, 0); };
 try { const saved = localStorage.getItem(KEY + '_tab'); if (VIEWS[saved]) UI.tab = saved; } catch (e) { /* bỏ qua */ }
+snapshot();
 render();
+if (SYNC.url) syncNow();
 </script>
 </body>
 </html>

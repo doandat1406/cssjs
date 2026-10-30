@@ -14,3 +14,9 @@ Mở file `quan-ly-cuoc-song/index.html` bằng Chrome/Safari trên máy tính h
 - **Thu chi**, **Thói quen** (chuỗi ngày), **Mục tiêu & Nhật ký**.
 
 Nút **Sao lưu / Khôi phục** ở cuối trang để tải dữ liệu ra file JSON hoặc chuyển sang máy khác.
+
+**Đồng bộ online & Pancake:** nút **☁️ Đồng bộ online** kết nối app với máy chủ Google Apps Script của riêng anh
+([`quan-ly-cuoc-song/google-apps-script/Code.gs`](quan-ly-cuoc-song/google-apps-script/Code.gs)) để dùng chung dữ liệu giữa
+nhiều thiết bị và tự nhận lead có SĐT từ Pancake mỗi 5 phút.
+
+👉 Cách cài đặt (GitHub Pages, đồng bộ, Pancake): xem [`quan-ly-cuoc-song/HUONG-DAN.md`](quan-ly-cuoc-song/HUONG-DAN.md).
