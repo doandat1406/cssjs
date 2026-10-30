@@ -27,7 +27,7 @@
   --radius: 12px;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #11151d;
     --card: #1a202b;
     --text: #e8ecf4;
@@ -44,7 +44,24 @@
     --shadow: none;
   }
 }
+:root[data-theme="dark"] {
+  --bg: #11151d;
+  --card: #1a202b;
+  --text: #e8ecf4;
+  --muted: #97a0b4;
+  --line: #2a3242;
+  --primary: #5b93ff;
+  --primary-soft: #1d2a45;
+  --green: #3ccf8a;
+  --green-soft: #15302a;
+  --red: #ff6b6b;
+  --red-soft: #3a1f23;
+  --orange: #ffaa3d;
+  --orange-soft: #3a2c17;
+  --shadow: none;
+}
 * { box-sizing: border-box; }
+a { color: var(--primary); }
 html, body { margin: 0; }
 body {
   background: var(--bg);
@@ -557,7 +574,13 @@ VIEWS.tongquan = () => {
   const sug = suggestions();
   const turn = peekTurn();
 
+  const isEmpty = ARRAYS.every(k => !S[k].length);
   return `
+  ${isEmpty ? `<div class="card hero"><h3>👋 Chào anh! App đang trống.</h3>
+    <div class="muted" style="margin-bottom:10px">Bấm nút dưới để nạp dữ liệu mẫu (đội sale, khách, ads...) và xem app hoạt động thế nào. Xem xong có thể xóa bằng 1 nút.</div>
+    <button class="btn" data-act="loadDemo">🧪 Dùng thử dữ liệu mẫu</button></div>` : ''}
+  ${hasDemo() ? `<div class="card" style="border-color:var(--orange)"><h3>🧪 Đang xem dữ liệu mẫu <button class="btn sm danger" data-act="clearDemo">Xóa dữ liệu mẫu</button></h3>
+    <div class="muted" style="font-size:13.5px">Khi bắt đầu dùng thật, bấm "Xóa dữ liệu mẫu" – dữ liệu anh tự nhập sẽ được giữ lại.</div></div>` : ''}
   <div class="grid">
     <div class="stat"><div class="lb">Việc hôm nay</div><div class="v">${doneToday}/${dueToday.length}</div>
       <div class="bar green"><i style="width:${pct(doneToday, dueToday.length)}%"></i></div>
@@ -897,6 +920,53 @@ function teamMessage(x) {
   return `📌 VIỆC CẦN LÀM\n• ${x.title}${x.detail ? '\n• Chi tiết: ' + x.detail : ''}${x.due ? '\n• Hạn: ' + fdate(x.due) + '/' + x.due.slice(0, 4) : ''}\nEm nhận việc và báo lại khi xong nhé!`;
 }
 
+// ===== Dữ liệu mẫu để xem thử =====
+function loadDemo() {
+  const t = today(), d = n => addDays(t, n), demo = true;
+  const st = [['Minh', '0901111111', 5], ['Lan', '0902222222', 4], ['Hùng', '0903333333', 4]]
+    .map(([name, phone, target]) => ({ id: uid(), name, phone, target, active: true, demo }));
+  S.staff.push(...st);
+  const [m, l, h] = st.map(x => x.id);
+  [[-6, 1.2e6, 35, 11, 5, 2, 1, 0], [-5, 1.4e6, 41, 13, 6, 1, 0, 1], [-4, 1.1e6, 30, 9, 4, 2, 1, 0], [-3, 1.6e6, 48, 15, 8, 3, 1, 1],
+   [-2, 1.5e6, 44, 12, 6, 2, 0, 0], [-1, 1.3e6, 39, 12, 5, 1, 1, 0], [0, 1.8e6, 46, 10, 4, 1, 0, 0]]
+    .forEach(([n, spend, messages, leads, phones, testDrives, deposits, sold]) =>
+      S.ads.push({ id: uid(), date: d(n), platform: 'Facebook', campaign: 'VF 3 / VF 5 – tháng này', spend, messages, leads, phones, testDrives, deposits, sold, demo }));
+  [['Nguyễn Văn An', '0911000001', 'VF 5', 'Bot Facebook', 'moi', '', 0, '', 'Hỏi trả góp 70%', 0],
+   ['Trần Thị Bình', '0911000002', 'VF 3', 'Pancake', 'moi', m, 0, '', 'Muốn xem màu vàng', 0],
+   ['Lê Quốc Cường', '0911000003', 'VF 6', 'Bot Zalo', 'chamsoc', l, 0, '', 'Hẹn lái thử cuối tuần', 0],
+   ['Phạm Minh Dũng', '0911000004', 'VF 7', 'Facebook Ads', 'chamsoc', h, 0, '', 'So sánh với xe xăng', -1],
+   ['Hoàng Thu Hà', '0911000005', 'VF 5', 'Facebook Ads', 'coc', m, 20e6, d(2), 'Giao xe tại showroom', 1],
+   ['Đỗ Văn Khoa', '0911000006', 'VF 8', 'Giới thiệu', 'coc', l, 50e6, '', 'Chờ duyệt ngân hàng', 0],
+   ['Vũ Thị Lan', '0911000007', 'VF 3', 'Bot Facebook', 'giao', h, 15e6, d(-3), '', 0]]
+    .forEach(([name, phone, model, source, status, saleId, deposit, deliveryDate, note, f]) =>
+      S.customers.push({ id: uid(), name, phone, model, source, status, saleId, deposit, deliveryDate, note, nextFollow: status === 'giao' ? '' : d(f), createdAt: d(status === 'moi' ? (name.startsWith('Ng') ? 0 : -1) : -5) + 'T09:00:00', demo }));
+  [['Gọi lại 10 khách cũ chưa chốt', m, d(-1), 'todo'], ['Chuẩn bị hồ sơ giao xe khách Hà', m, d(1), 'doing'],
+   ['Đăng 3 bài review VF 6 lên Facebook cá nhân', l, d(0), 'todo'], ['Báo giá lăn bánh VF 7 cho khách Dũng', h, d(0), 'done']]
+    .forEach(([title, staffId, due, status]) => S.teamTasks.push({ id: uid(), title, staffId, due, status, detail: '', createdAt: d(-1) + 'T08:00:00', doneAt: status === 'done' ? t + 'T10:00:00' : '', log: [{ t: d(-1) + 'T08:00:00', msg: 'Giao cho ' + staffName(staffId) }], demo }));
+  [['Duyệt nội dung quảng cáo VF 3 mới', 'Quảng cáo', 'cao', d(0), true], ['Họp đội sale 8h sáng', 'Đội sale', 'tb', d(0), true],
+   ['Gửi báo cáo ads tuần cho sếp', 'Quảng cáo', 'cao', d(0), false], ['Cập nhật kịch bản bot Zalo', 'Quảng cáo', 'tb', d(-1), false],
+   ['Đón con lúc 17h', 'Gia đình', 'tb', d(0), false]]
+    .forEach(([title, cat, priority, due, done]) => S.tasks.push({ id: uid(), title, cat, priority, due, done, doneAt: done ? t + 'T09:00:00' : '', createdAt: d(-1) + 'T07:00:00', demo }));
+  [['thu', 15e6, 'Hoa hồng bán xe'], ['chi', 9.9e6, 'Quảng cáo'], ['chi', 3.2e6, 'Ăn uống'], ['chi', 1.5e6, 'Đi lại'], ['chi', 4e6, 'Gia đình']]
+    .forEach(([type, amount, cat], i) => S.finance.push({ id: uid(), type, amount, cat, date: d(-i), note: '', demo }));
+  ['Uống 2 lít nước', 'Tập thể dục 30 phút', 'Ngủ trước 23h'].forEach((name, i) => {
+    const days = {};
+    for (let k = 1; k <= 5 - i; k++) days[d(-k)] = true;
+    if (i === 0) days[t] = true;
+    S.habits.push({ id: uid(), name, days, demo });
+  });
+  [['Bán 10 xe tháng này', 'Công việc', 40], ['Mở kênh TikTok đạt 1.000 follow', 'Công việc', 10], ['Tiết kiệm 50 triệu', 'Tài chính', 30]]
+    .forEach(([title, area, progress], i) => S.goals.push({ id: uid(), title, area, progress, deadline: d(10 + i * 30), demo }));
+  S.journal.push({ id: uid(), date: d(-1), mood: MOODS[0], text: 'Bot AI trả lời khách rất ổn, lấy được nhiều SĐT. Cần nhắc Minh gọi lại khách cũ.', demo });
+  save(); render(); toast('Đã nạp dữ liệu mẫu – xem thử các tab nhé!');
+}
+function clearDemo() {
+  ARRAYS.forEach(k => S[k] = S[k].filter(x => { if (x.demo) S.deleted[x.id] = Date.now(); return !x.demo; }));
+  S.rrIndex = 0;
+  save(); render(); toast('Đã xóa dữ liệu mẫu');
+}
+const hasDemo = () => ARRAYS.some(k => S[k].some(x => x.demo));
+
 // ===== Hành động =====
 const ACTS = {
   setUI: el => { UI[el.dataset.k] = el.dataset.v; render(); },
@@ -1038,6 +1108,8 @@ const ACTS = {
     URL.revokeObjectURL(a.href);
   },
   restore: () => $('#restore-file').click(),
+  loadDemo: () => loadDemo(),
+  clearDemo: () => { if (confirm('Xóa toàn bộ dữ liệu mẫu? Dữ liệu anh tự nhập vẫn giữ nguyên.')) clearDemo(); },
 
   syncSettings: () => {
     const m = $('#modal');
