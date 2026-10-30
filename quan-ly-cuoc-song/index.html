@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1464f4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Quản Lý">
+<title>Quản Lý Cuộc Sống</title>
+<style>
+:root {
+  --bg: #f4f6fa;
+  --card: #ffffff;
+  --text: #1b2333;
+  --muted: #6b7489;
+  --line: #e3e7ef;
+  --primary: #1464f4;
+  --primary-soft: #e6eeff;
+  --green: #12925a;
+  --green-soft: #e2f6ec;
+  --red: #d63c3c;
+  --red-soft: #fde8e8;
+  --orange: #d97a06;
+  --orange-soft: #fff1dc;
+  --shadow: 0 1px 3px rgba(20, 30, 60, .08);
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151d;
+    --card: #1a202b;
+    --text: #e8ecf4;
+    --muted: #97a0b4;
+    --line: #2a3242;
+    --primary: #5b93ff;
+    --primary-soft: #1d2a45;
+    --green: #3ccf8a;
+    --green-soft: #15302a;
+    --red: #ff6b6b;
+    --red-soft: #3a1f23;
+    --orange: #ffaa3d;
+    --orange-soft: #3a2c17;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151d;
+  --card: #1a202b;
+  --text: #e8ecf4;
+  --muted: #97a0b4;
+  --line: #2a3242;
+  --primary: #5b93ff;
+  --primary-soft: #1d2a45;
+  --green: #3ccf8a;
+  --green-soft: #15302a;
+  --red: #ff6b6b;
+  --red-soft: #3a1f23;
+  --orange: #ffaa3d;
+  --orange-soft: #3a2c17;
+  --shadow: none;
+}
+* { box-sizing: border-box; }
+a { color: var(--primary); }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  padding-bottom: 40px;
+}
+header {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 16px 4px; max-width: 1100px; margin: 0 auto; }
+.top h1 { font-size: 18px; margin: 0; }
+.top small { color: var(--muted); display: block; font-size: 12px; }
+nav { display: flex; gap: 4px; overflow-x: auto; padding: 6px 12px 8px; max-width: 1100px; margin: 0 auto; scrollbar-width: none; }
+nav::-webkit-scrollbar { display: none; }
+nav button {
+  flex: none; border: 0; background: transparent; color: var(--muted);
+  padding: 7px 12px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; white-space: nowrap;
+}
+nav button.on { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+main { max-width: 1100px; margin: 0 auto; padding: 14px 16px; }
+h2 { font-size: 17px; margin: 18px 0 10px; }
+h2:first-child { margin-top: 4px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); margin-bottom: 12px; }
+.card h3 { margin: 0 0 10px; font-size: 15px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); margin-bottom: 12px; }
+.cols { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); align-items: start; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); }
+.stat .lb { color: var(--muted); font-size: 12.5px; }
+.stat .v { font-size: 22px; font-weight: 700; margin-top: 2px; }
+.stat .sub { color: var(--muted); font-size: 12.5px; }
+.bar { height: 7px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.bar > i { display: block; height: 100%; background: var(--primary); border-radius: 99px; }
+.bar.green > i { background: var(--green); }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.toolbar .grow { flex: 1; min-width: 160px; }
+.btn {
+  border: 1px solid var(--line); background: var(--card); color: var(--text);
+  padding: 7px 12px; border-radius: 9px; font: inherit; font-size: 14px; cursor: pointer; white-space: nowrap;
+}
+.btn:hover { border-color: var(--primary); }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn.ghost { background: transparent; }
+.btn.sm { padding: 3px 9px; font-size: 13px; border-radius: 7px; }
+.btn.danger { color: var(--red); }
+.btn.zalo { color: #0068ff; border-color: #0068ff55; }
+input, select, textarea {
+  font: inherit; color: var(--text); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; width: 100%; min-width: 0;
+}
+textarea { resize: vertical; }
+.toolbar input, .toolbar select { width: auto; }
+.toolbar .grow input { width: 100%; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.chip { border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 999px; padding: 4px 11px; font: inherit; font-size: 13.5px; cursor: pointer; }
+.chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.chip b { font-weight: 600; opacity: .8; margin-left: 3px; }
+.list { list-style: none; margin: 0; padding: 0; }
+.item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--line); }
+.item:first-child { border-top: 0; padding-top: 2px; }
+.item .body { flex: 1; min-width: 0; }
+.item .title { font-weight: 600; overflow-wrap: anywhere; }
+.item .meta { color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 2px; }
+.item .acts { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.item.done .title { text-decoration: line-through; color: var(--muted); }
+.item input[type=checkbox] { width: 20px; height: 20px; margin-top: 2px; flex: none; accent-color: var(--primary); }
+.tag { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 99px; background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+.tag.red { background: var(--red-soft); color: var(--red); }
+.tag.green { background: var(--green-soft); color: var(--green); }
+.tag.orange { background: var(--orange-soft); color: var(--orange); }
+.tag.gray { background: var(--line); color: var(--muted); }
+.empty { color: var(--muted); font-size: 14px; padding: 8px 0; }
+.red-t { color: var(--red); }
+.green-t { color: var(--green); }
+.muted { color: var(--muted); }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+.chart { display: flex; align-items: flex-end; gap: 4px; height: 130px; padding-top: 16px; }
+.chart .col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+.chart .col i { width: 100%; max-width: 26px; background: var(--primary); border-radius: 4px 4px 0 0; min-height: 2px; }
+.chart .col span { font-size: 10.5px; color: var(--muted); margin-top: 3px; }
+.chart .col em { font-size: 10.5px; font-style: normal; color: var(--text); margin-bottom: 2px; }
+.sugg { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-top: 1px solid var(--line); }
+.sugg:first-of-type { border-top: 0; }
+.sugg .ico { font-size: 18px; line-height: 1.3; }
+.sugg .body { flex: 1; }
+.hero { background: linear-gradient(135deg, #1464f4, #4f8cff); color: #fff; border: 0; }
+.hero h3 { color: #fff; }
+.hero .muted { color: #dbe6ff; }
+.dots { display: flex; gap: 4px; }
+.dot { width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg); font-size: 10.5px; color: var(--muted); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.dot.on { background: var(--green); border-color: var(--green); color: #fff; }
+details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+details ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; color: var(--muted); }
+.turn { border: 2px solid var(--green); }
+.inline-select { width: auto; padding: 3px 6px; font-size: 13px; border-radius: 7px; }
+#modal { position: fixed; inset: 0; background: rgba(10, 15, 30, .5); z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding: 30px 12px; overflow-y: auto; }
+#modal[hidden] { display: none; }
+.modal-box { background: var(--card); border-radius: 14px; padding: 16px; width: 100%; max-width: 560px; }
+.modal-box h3 { margin: 0 0 12px; }
+.form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--muted); }
+.field.full { grid-column: 1 / -1; }
+.row-end { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+#toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #1b2333; color: #fff; padding: 9px 16px; border-radius: 10px; font-size: 14px; z-index: 60; max-width: calc(100% - 32px); box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+#toast[hidden] { display: none; }
+footer { max-width: 1100px; margin: 0 auto; padding: 0 16px; color: var(--muted); font-size: 13px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+@media (max-width: 560px) {
+  .form { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr 1fr; }
+  .stat .v { font-size: 19px; }
+  .item { flex-wrap: wrap; }
+  .item .acts { width: 100%; justify-content: flex-start; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div>
+      <h1>📋 Quản Lý Cuộc Sống</h1>
+      <small id="today-label"></small>
+      <small id="sync-label" class="muted"></small>
+    </div>
+    <button class="btn sm primary" data-act="quickAdd">+ Việc nhanh</button>
+  </div>
+  <nav id="nav"></nav>
+</header>
+<main id="view"></main>
+<footer>
+  <span>Dữ liệu được lưu trên trình duyệt của máy này.</span>
+  <button class="btn sm" data-act="backup">⬇️ Sao lưu</button>
+  <button class="btn sm" data-act="restore">⬆️ Khôi phục</button>
+  <button class="btn sm" data-act="syncSettings">☁️ Đồng bộ online</button>
+  <input type="file" id="restore-file" accept="application/json" hidden>
+</footer>
+<div id="modal" hidden></div>
+<div id="toast" hidden></div>
+
+<script>
+'use strict';
+
+// ===== Dữ liệu & lưu trữ =====
+const KEY = 'quanlycuocsong_v1';
+const DEFAULT = {
+  tasks: [], ads: [], customers: [], staff: [], rrIndex: 0, teamTasks: [],
+  finance: [], habits: [], goals: [], journal: [], deleted: {}, rrU: 0
+};
+const ARRAYS = ['tasks', 'ads', 'customers', 'staff', 'teamTasks', 'finance', 'habits', 'goals', 'journal'];
+let S = load();
+
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY));
+    return Object.assign(structuredClone(DEFAULT), d || {});
+  } catch (e) {
+    return structuredClone(DEFAULT);
+  }
+}
+function store() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) { toast('⚠️ Không lưu được dữ liệu trên trình duyệt này'); }
+}
+function save() {
+  stamp();
+  store();
+  scheduleSync();
+}
+
+// Đánh dấu thời điểm sửa (_u) cho từng mục đã thay đổi – dùng để gộp dữ liệu giữa các máy
+let SNAP = {};
+const itemKey = x => { const { _u, ...rest } = x; return JSON.stringify(rest); };
+function snapshot() {
+  SNAP = {};
+  ARRAYS.forEach(k => S[k].forEach(x => { SNAP[x.id] = itemKey(x); }));
+}
+function stamp() {
+  const now = Date.now();
+  ARRAYS.forEach(k => S[k].forEach(x => {
+    const j = itemKey(x);
+    if (SNAP[x.id] !== j) { x._u = now; SNAP[x.id] = j; }
+  }));
+}
+
+// Gộp 2 bản dữ liệu: mục nào sửa sau thì thắng, mục đã xóa ở bất kỳ máy nào thì bị bỏ
+function mergeState(local, remote) {
+  const out = Object.assign(structuredClone(DEFAULT), remote);
+  const cutoff = Date.now() - 90 * 864e5;
+  out.deleted = {};
+  Object.entries(Object.assign({}, remote.deleted, local.deleted)).forEach(([id, t]) => { if (t > cutoff) out.deleted[id] = t; });
+  ARRAYS.forEach(k => {
+    const map = new Map();
+    (remote[k] || []).forEach(x => map.set(x.id, x));
+    (local[k] || []).forEach(x => {
+      const r = map.get(x.id);
+      if (!r || (x._u || 0) > (r._u || 0)) map.set(x.id, x);
+    });
+    out[k] = [...map.values()].filter(x => !out.deleted[x.id]);
+  });
+  if ((local.rrU || 0) > (remote.rrU || 0)) { out.rrIndex = local.rrIndex; out.rrU = local.rrU; }
+  return out;
+}
+
+// ===== Đồng bộ online qua Google Apps Script =====
+const SYNC_KEY = KEY + '_sync';
+let SYNC = (() => { try { return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; } catch (e) { return {}; } })();
+let syncing = false, syncTimer = null, localRev = 0, needRender = false;
+const saveSync = () => { try { localStorage.setItem(SYNC_KEY, JSON.stringify(SYNC)); } catch (e) { /* bỏ qua */ } };
+
+function setSyncLabel(text, cls) {
+  const el = document.getElementById('sync-label');
+  if (el) { el.textContent = text; el.className = cls || ''; }
+}
+function scheduleSync(delay = 1500) {
+  if (!SYNC.url) return;
+  localRev++;
+  SYNC.dirty = true;
+  saveSync();
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncNow, delay);
+}
+async function syncNow() {
+  if (!SYNC.url || syncing) return;
+  syncing = true;
+  setSyncLabel('☁️ Đang đồng bộ...');
+  const before = JSON.stringify(S);
+  try {
+    const r = await (await fetch(SYNC.url + '?key=' + encodeURIComponent(SYNC.key))).json();
+    if (!r.ok) throw new Error(r.error || 'Máy chủ báo lỗi');
+    if (r.version !== SYNC.version) {
+      if (r.data) { S = mergeState(S, r.data); snapshot(); }
+      SYNC.version = r.version;
+    }
+    for (let i = 0; i < 3 && SYNC.dirty; i++) {
+      const sentRev = localRev;
+      const p = await (await fetch(SYNC.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ key: SYNC.key, baseVersion: SYNC.version, data: S })
+      })).json();
+      if (p.conflict) {
+        if (p.data) { S = mergeState(S, p.data); snapshot(); }
+        SYNC.version = p.version;
+        continue;
+      }
+      if (!p.ok) throw new Error(p.error || 'Không gửi được dữ liệu');
+      SYNC.version = p.version;
+      SYNC.dirty = localRev !== sentRev;
+    }
+    store();
+    saveSync();
+    SYNC.lastOk = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    setSyncLabel('☁️ Đã đồng bộ ' + SYNC.lastOk, 'green-t');
+    if (JSON.stringify(S) !== before) {
+      if ($('#modal').hidden) render(); else needRender = true;
+    }
+  } catch (e) {
+    setSyncLabel('⚠️ Chưa đồng bộ được – ' + e.message, 'red-t');
+  } finally {
+    syncing = false;
+    saveSync();
+    if (SYNC.dirty) { clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 30000); }
+  }
+}
+setInterval(() => { if (SYNC.url && document.visibilityState === 'visible') syncNow(); }, 60000);
+document.addEventListener('visibilitychange', () => { if (SYNC.url && document.visibilityState === 'visible') syncNow(); });
+
+// ===== Danh mục =====
+const TABS = [
+  ['tongquan', '🏠 Tổng quan'],
+  ['congviec', '✅ Việc của anh'],
+  ['quangcao', '📣 Quảng cáo'],
+  ['khachhang', '🚗 Khách hàng'],
+  ['doisale', '👥 Đội sale'],
+  ['taichinh', '💰 Thu chi'],
+  ['thoiquen', '💪 Thói quen'],
+  ['muctieu', '🎯 Mục tiêu & Nhật ký']
+];
+const TASK_CATS = ['Quảng cáo', 'Đội sale', 'Bán xe', 'Cá nhân', 'Gia đình', 'Khác'];
+const PRIORITY = [['cao', 'Cao'], ['tb', 'Trung bình'], ['thap', 'Thấp']];
+const PLATFORMS = ['Facebook', 'TikTok', 'YouTube', 'Zalo'];
+const CAR_MODELS = ['VF 3', 'VF 5', 'VF 6', 'VF 7', 'VF 8', 'VF 9', 'VF e34', 'Limo Green', 'Minio Green', 'Herio Green', 'Nerio Green', 'Chưa rõ'];
+const SOURCES = ['Facebook Ads', 'Bot Facebook', 'Bot Zalo', 'Pancake', 'TikTok', 'YouTube', 'Giới thiệu', 'Khác'];
+const CUST_STATUS = [['moi', 'Lead mới'], ['chamsoc', 'Đang chăm sóc'], ['coc', 'Đã đặt cọc'], ['giao', 'Đã giao xe'], ['huy', 'Thất bại']];
+const TEAM_STATUS = [['todo', 'Chưa làm'], ['doing', 'Đang làm'], ['done', 'Xong']];
+const INCOME_CATS = ['Hoa hồng bán xe', 'Lương', 'Thưởng', 'Khác'];
+const EXPENSE_CATS = ['Quảng cáo', 'Ăn uống', 'Đi lại', 'Gia đình', 'Hóa đơn', 'Mua sắm', 'Sức khỏe', 'Khác'];
+const MOODS = ['😄 Rất vui', '🙂 Vui', '😐 Bình thường', '😟 Buồn', '😫 Mệt'];
+const GOAL_AREAS = ['Công việc', 'Tài chính', 'Sức khỏe', 'Gia đình', 'Bản thân'];
+
+// ===== Tiện ích =====
+const $ = s => document.querySelector(s);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dstr = d => d.toLocaleDateString('sv-SE');
+const today = () => dstr(new Date());
+const addDays = (s, n) => { const d = new Date(s + 'T00:00:00'); d.setDate(d.getDate() + n); return dstr(d); };
+const thisMonth = () => today().slice(0, 7);
+const money = n => (Number(n) || 0).toLocaleString('vi-VN') + 'đ';
+const short = n => {
+  n = Number(n) || 0;
+  if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(1).replace('.0', '') + ' tỷ';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(1).replace('.0', '') + 'tr';
+  if (Math.abs(n) >= 1e3) return Math.round(n / 1e3) + 'k';
+  return String(n);
+};
+const fdate = s => s ? s.slice(8, 10) + '/' + s.slice(5, 7) : '';
+const label = (list, v) => (list.find(x => x[0] === v) || [, v])[1];
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const sum = (arr, k) => arr.reduce((t, x) => t + (Number(x[k]) || 0), 0);
+const normPhone = p => {
+  let d = String(p || '').replace(/\D/g, '');
+  if (d.startsWith('84') && d.length >= 11) d = '0' + d.slice(2);
+  return d;
+};
+const staffName = id => (S.staff.find(s => s.id === id) || {}).name || 'Chưa giao';
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => { t.hidden = true; }, 2600);
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+}
+
+// Sao chép tin nhắn rồi mở Zalo của người nhận để dán và gửi
+async function sendZalo(phone, text) {
+  const ok = await copyText(text);
+  toast(ok ? '📋 Đã sao chép tin nhắn – dán vào Zalo để gửi' : 'Không sao chép được, hãy gửi thủ công');
+  const p = normPhone(phone);
+  if (p) window.open('https://zalo.me/' + p, '_blank');
+  else toast('Người này chưa có số điện thoại Zalo – tin nhắn đã được sao chép');
+}
+
+// ===== Chia việc theo lượt =====
+const activeStaff = () => S.staff.filter(s => s.active !== false);
+function peekTurn() {
+  const list = activeStaff();
+  return list.length ? list[S.rrIndex % list.length] : null;
+}
+function takeTurn() {
+  const s = peekTurn();
+  if (s) { S.rrIndex = (S.rrIndex + 1) % activeStaff().length; S.rrU = Date.now(); }
+  return s;
+}
+
+// ===== Form dạng popup dùng chung =====
+function fieldHtml(f, v) {
+  v = v ?? f.def ?? '';
+  const req = f.required ? 'required' : '';
+  let input;
+  if (f.type === 'select') {
+    input = `<select name="${f.k}" ${req}>${f.options.map(o => {
+      const [val, lab] = Array.isArray(o) ? o : [o, o];
+      return `<option value="${esc(val)}" ${String(val) === String(v) ? 'selected' : ''}>${esc(lab)}</option>`;
+    }).join('')}</select>`;
+  } else if (f.type === 'textarea') {
+    input = `<textarea name="${f.k}" rows="${f.rows || 3}" placeholder="${esc(f.ph || '')}">${esc(v)}</textarea>`;
+  } else {
+    const num = f.type === 'number' ? 'step="any" min="0" inputmode="decimal"' : '';
+    input = `<input name="${f.k}" type="${f.type || 'text'}" value="${esc(v)}" ${req} ${num} placeholder="${esc(f.ph || '')}">`;
+  }
+  return `<label class="field ${f.full ? 'full' : ''}"><span>${esc(f.label)}${f.required ? ' *' : ''}</span>${input}</label>`;
+}
+
+function openForm(title, fields, values, onSave) {
+  const m = $('#modal');
+  m.innerHTML = `<div class="modal-box"><h3>${esc(title)}</h3>
+    <form class="form" id="mform">${fields.map(f => fieldHtml(f, values?.[f.k])).join('')}
+      <div class="row-end"><button type="button" class="btn ghost" data-close>Hủy</button><button class="btn primary">Lưu</button></div>
+    </form></div>`;
+  m.hidden = false;
+  m.querySelector('[data-close]').onclick = closeModal;
+  const form = $('#mform');
+  form.onsubmit = e => {
+    e.preventDefault();
+    const data = {};
+    fields.forEach(f => {
+      let v = form.elements[f.k].value.trim();
+      if (f.type === 'number') v = v === '' ? 0 : Number(v);
+      data[f.k] = v;
+    });
+    closeModal();
+    onSave(data);
+    save();
+    render();
+  };
+  const first = form.querySelector('input, textarea, select');
+  if (first) first.focus();
+}
+function closeModal() {
+  $('#modal').hidden = true;
+  $('#modal').innerHTML = '';
+  if (needRender) { needRender = false; render(); }
+}
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+// ===== Gợi ý công việc ngày mai =====
+function suggestions() {
+  const t = today(), tm = addDays(t, 1), out = [];
+  const add = (ico, text, cat, pri = 'tb') => out.push({ ico, text, cat, pri });
+
+  S.tasks.filter(x => !x.done && x.due && x.due < t)
+    .forEach(x => add('⏰', `Xử lý việc quá hạn: ${x.title}`, x.cat, 'cao'));
+
+  // Khách hàng
+  const unassigned = S.customers.filter(c => !c.saleId && ['moi', 'chamsoc'].includes(c.status));
+  if (unassigned.length) add('🔀', `Chia ${unassigned.length} lead chưa có sale phụ trách`, 'Đội sale', 'cao');
+  const staleLeads = S.customers.filter(c => c.status === 'moi' && (c.createdAt || '').slice(0, 10) < t);
+  if (staleLeads.length) add('📞', `Gọi lại ${staleLeads.length} lead mới chưa được chăm sóc (từ hôm qua trở về trước)`, 'Bán xe', 'cao');
+  S.customers.filter(c => ['moi', 'chamsoc', 'coc'].includes(c.status) && c.nextFollow && c.nextFollow <= tm)
+    .slice(0, 8)
+    .forEach(c => add('🤝', `Chăm sóc khách ${c.name} (${c.model || 'chưa rõ xe'}) – ${staffName(c.saleId)}`, 'Bán xe'));
+  S.customers.filter(c => c.status === 'coc' && c.deliveryDate && c.deliveryDate >= t && c.deliveryDate <= addDays(t, 3))
+    .forEach(c => add('🚗', `Chuẩn bị giao xe ${c.model || ''} cho ${c.name} ngày ${fdate(c.deliveryDate)}`, 'Bán xe', 'cao'));
+  const noDelivery = S.customers.filter(c => c.status === 'coc' && !c.deliveryDate);
+  if (noDelivery.length) add('🗓️', `Chốt ngày giao xe cho ${noDelivery.length} khách đã đặt cọc`, 'Bán xe');
+
+  // Đội sale
+  activeStaff().forEach(s => {
+    const late = S.teamTasks.filter(x => x.staffId === s.id && x.status !== 'done' && x.due && x.due < t);
+    if (late.length) add('📣', `Nhắc ${s.name} hoàn thành ${late.length} việc quá hạn`, 'Đội sale', 'cao');
+  });
+  const pending = S.teamTasks.filter(x => x.status === 'todo' && x.due === tm);
+  if (pending.length) add('👀', `Kiểm tra ${pending.length} việc của đội sale đến hạn ngày mai`, 'Đội sale');
+
+  // Quảng cáo
+  const adsToday = S.ads.filter(a => a.date === t);
+  if (!adsToday.length) add('📊', 'Nhập số liệu quảng cáo hôm nay để theo dõi giá lead', 'Quảng cáo');
+  const last7 = S.ads.filter(a => a.date < t && a.date >= addDays(t, -7));
+  const cplToday = sum(adsToday, 'leads') ? sum(adsToday, 'spend') / sum(adsToday, 'leads') : 0;
+  const cpl7 = sum(last7, 'leads') ? sum(last7, 'spend') / sum(last7, 'leads') : 0;
+  if (cplToday && cpl7 && cplToday > cpl7 * 1.2)
+    add('📈', `Giá lead hôm nay (${money(Math.round(cplToday))}) cao hơn trung bình 7 ngày ${pct(cplToday - cpl7, cpl7)}% – xem lại nội dung/đối tượng quảng cáo`, 'Quảng cáo', 'cao');
+  const msgs = sum(adsToday, 'messages'), phones = sum(adsToday, 'phones');
+  if (msgs >= 10 && pct(phones, msgs) < 20)
+    add('🤖', `Bot chỉ lấy được SĐT ${pct(phones, msgs)}% số tin nhắn – tinh chỉnh kịch bản bot xin số`, 'Quảng cáo');
+  if (S.ads.length && !S.ads.some(a => a.platform !== 'Facebook'))
+    add('🚀', 'Lên kế hoạch thử kênh TikTok / YouTube (bắt đầu với 1 video giới thiệu xe)', 'Quảng cáo', 'thap');
+
+  // Cá nhân
+  const undone = S.habits.filter(h => !h.days?.[t]);
+  if (undone.length) add('💪', `Duy trì thói quen: ${undone.map(h => h.name).join(', ')}`, 'Cá nhân', 'thap');
+  S.goals.filter(g => g.deadline && g.deadline <= addDays(t, 14) && (g.progress || 0) < 80)
+    .forEach(g => add('🎯', `Mục tiêu "${g.title}" sắp đến hạn (${fdate(g.deadline)}) mới đạt ${g.progress || 0}%`, 'Cá nhân'));
+  const m = thisMonth(), fm = S.finance.filter(f => f.date.startsWith(m));
+  const inc = sum(fm.filter(f => f.type === 'thu'), 'amount'), exp = sum(fm.filter(f => f.type === 'chi'), 'amount');
+  if (exp > inc && inc > 0) add('💸', `Chi tiêu tháng này đang vượt thu nhập ${money(exp - inc)}`, 'Cá nhân');
+
+  const rank = { cao: 0, tb: 1, thap: 2 };
+  const planned = new Set(S.tasks.filter(x => x.due === tm).map(x => x.title));
+  return out.filter(x => !planned.has(x.text)).sort((a, b) => rank[a.pri] - rank[b.pri]);
+}
+
+// ===== Các màn hình =====
+let UI = { tab: 'tongquan', taskFilter: 'open', custFilter: 'moi', custSearch: '', custSale: '', adsPlatform: '', finMonth: thisMonth(), teamFilter: 'open', teamStaff: '' };
+const VIEWS = {};
+
+function taskItem(x) {
+  const t = today();
+  const late = !x.done && x.due && x.due < t;
+  const pri = x.priority === 'cao' ? '<span class="tag red">Ưu tiên cao</span>' : x.priority === 'thap' ? '<span class="tag gray">Thấp</span>' : '';
+  return `<li class="item ${x.done ? 'done' : ''}">
+    <input type="checkbox" data-act="toggleTask" data-id="${x.id}" ${x.done ? 'checked' : ''} aria-label="Hoàn thành">
+    <div class="body"><div class="title">${esc(x.title)}</div>
+      <div class="meta"><span class="tag">${esc(x.cat)}</span>${pri}
+        ${x.due ? `<span class="${late ? 'red-t' : ''}">📅 ${fdate(x.due)}${late ? ' (quá hạn)' : ''}</span>` : ''}
+        ${x.note ? `<span>${esc(x.note)}</span>` : ''}</div></div>
+    <div class="acts"><button class="btn sm" data-act="editTask" data-id="${x.id}">Sửa</button>
+      <button class="btn sm danger" data-act="delTask" data-id="${x.id}">Xóa</button></div></li>`;
+}
+
+VIEWS.tongquan = () => {
+  const t = today();
+  const dueToday = S.tasks.filter(x => x.due === t);
+  const doneToday = dueToday.filter(x => x.done).length;
+  const overdue = S.tasks.filter(x => !x.done && x.due && x.due < t);
+  const adsT = S.ads.filter(a => a.date === t);
+  const spend = sum(adsT, 'spend'), leads = sum(adsT, 'leads'), phones = sum(adsT, 'phones');
+  const newCust = S.customers.filter(c => (c.createdAt || '').slice(0, 10) === t).length;
+  const deposits = S.customers.filter(c => c.status === 'coc');
+  const teamOpen = S.teamTasks.filter(x => x.status !== 'done');
+  const teamLate = teamOpen.filter(x => x.due && x.due < t);
+  const teamDoneToday = S.teamTasks.filter(x => x.status === 'done' && (x.doneAt || '').slice(0, 10) === t).length;
+  const habitsDone = S.habits.filter(h => h.days?.[t]).length;
+  const fm = S.finance.filter(f => f.date.startsWith(thisMonth()));
+  const bal = sum(fm.filter(f => f.type === 'thu'), 'amount') - sum(fm.filter(f => f.type === 'chi'), 'amount');
+  const follow = S.customers.filter(c => ['moi', 'chamsoc', 'coc'].includes(c.status) && c.nextFollow && c.nextFollow <= t);
+  const delivering = deposits.filter(c => c.deliveryDate && c.deliveryDate >= t && c.deliveryDate <= addDays(t, 7))
+    .sort((a, b) => a.deliveryDate.localeCompare(b.deliveryDate));
+  const sug = suggestions();
+  const turn = peekTurn();
+
+  const isEmpty = ARRAYS.every(k => !S[k].length);
+  return `
+  ${isEmpty ? `<div class="card hero"><h3>👋 Chào anh! App đang trống.</h3>
+    <div class="muted" style="margin-bottom:10px">Bấm nút dưới để nạp dữ liệu mẫu (đội sale, khách, ads...) và xem app hoạt động thế nào. Xem xong có thể xóa bằng 1 nút.</div>
+    <button class="btn" data-act="loadDemo">🧪 Dùng thử dữ liệu mẫu</button></div>` : ''}
+  ${hasDemo() ? `<div class="card" style="border-color:var(--orange)"><h3>🧪 Đang xem dữ liệu mẫu <button class="btn sm danger" data-act="clearDemo">Xóa dữ liệu mẫu</button></h3>
+    <div class="muted" style="font-size:13.5px">Khi bắt đầu dùng thật, bấm "Xóa dữ liệu mẫu" – dữ liệu anh tự nhập sẽ được giữ lại.</div></div>` : ''}
+  <div class="grid">
+    <div class="stat"><div class="lb">Việc hôm nay</div><div class="v">${doneToday}/${dueToday.length}</div>
+      <div class="bar green"><i style="width:${pct(doneToday, dueToday.length)}%"></i></div>
+      <div class="sub">${overdue.length ? `<span class="red-t">${overdue.length} việc quá hạn</span>` : 'Không có việc quá hạn'}</div></div>
+    <div class="stat"><div class="lb">Ads hôm nay</div><div class="v">${short(spend)}</div>
+      <div class="sub">${leads} lead · ${phones} SĐT · ${leads ? short(Math.round(spend / leads)) + '/lead' : '–'}</div></div>
+    <div class="stat"><div class="lb">Khách mới hôm nay</div><div class="v">${newCust}</div>
+      <div class="sub">${S.customers.filter(c => c.status === 'moi').length} lead đang chờ xử lý</div></div>
+    <div class="stat"><div class="lb">Khách đã đặt cọc</div><div class="v">${deposits.length}</div>
+      <div class="sub">${delivering.length} xe giao trong 7 ngày</div></div>
+    <div class="stat"><div class="lb">Việc đội sale</div><div class="v">${teamOpen.length}</div>
+      <div class="sub">${teamLate.length ? `<span class="red-t">${teamLate.length} quá hạn</span>` : '0 quá hạn'} · ${teamDoneToday} xong hôm nay</div></div>
+    <div class="stat"><div class="lb">Thói quen</div><div class="v">${habitsDone}/${S.habits.length}</div>
+      <div class="bar green"><i style="width:${pct(habitsDone, S.habits.length)}%"></i></div></div>
+    <div class="stat"><div class="lb">Thu – chi tháng này</div><div class="v ${bal < 0 ? 'red-t' : 'green-t'}">${short(bal)}</div>
+      <div class="sub">${fm.length} giao dịch</div></div>
+    <div class="stat"><div class="lb">Tới lượt nhận việc</div><div class="v" style="font-size:18px">${turn ? esc(turn.name) : '–'}</div>
+      <div class="sub">${activeStaff().length} sale đang hoạt động</div></div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <div class="card hero"><h3>💡 Gợi ý việc cho ngày mai (${fdate(addDays(t, 1))})
+        ${sug.length ? '<button class="btn sm" data-act="addAllSugg">+ Thêm tất cả</button>' : ''}</h3>
+        ${sug.length ? sug.map((s, i) => `<div class="sugg"><span class="ico">${s.ico}</span>
+          <div class="body">${esc(s.text)} ${s.pri === 'cao' ? '<span class="tag red" style="background:#fff">Gấp</span>' : ''}</div>
+          <button class="btn sm" data-act="addSugg" data-id="${i}">+ Thêm</button></div>`).join('')
+        : '<div class="muted">Mọi thứ đang rất ổn! Hãy nhập thêm dữ liệu để em gợi ý chính xác hơn.</div>'}
+      </div>
+      <div class="card"><h3>🗓️ Kế hoạch ngày mai (${S.tasks.filter(x => x.due === addDays(t, 1)).length} việc)</h3>
+        ${S.tasks.some(x => x.due === addDays(t, 1)) ? `<ul class="list">${S.tasks.filter(x => x.due === addDays(t, 1)).map(taskItem).join('')}</ul>`
+        : '<div class="empty">Chưa có việc cho ngày mai – bấm "+ Thêm" ở các gợi ý phía trên.</div>'}
+      </div>
+      <div class="card"><h3>✅ Việc hôm nay & quá hạn <button class="btn sm" data-act="addTask">+ Thêm</button></h3>
+        ${[...overdue, ...dueToday].length ? `<ul class="list">${[...overdue, ...dueToday.sort((a, b) => a.done - b.done)].map(taskItem).join('')}</ul>`
+        : '<div class="empty">Chưa có việc nào cho hôm nay.</div>'}
+      </div>
+    </div>
+    <div>
+      <div class="card"><h3>🤝 Khách cần chăm sóc hôm nay</h3>
+        ${follow.length ? `<ul class="list">${follow.map(custItem).join('')}</ul>` : '<div class="empty">Không có khách cần gọi lại hôm nay.</div>'}
+      </div>
+      <div class="card"><h3>🚗 Xe sắp giao (7 ngày)</h3>
+        ${delivering.length ? `<ul class="list">${delivering.map(c => `<li class="item"><div class="body"><div class="title">${esc(c.name)} – ${esc(c.model)}</div>
+          <div class="meta"><span>📅 ${fdate(c.deliveryDate)}</span><span>👤 ${esc(staffName(c.saleId))}</span>${c.deposit ? `<span>Cọc ${money(c.deposit)}</span>` : ''}</div></div></li>`).join('')}</ul>`
+        : '<div class="empty">Chưa có lịch giao xe.</div>'}
+      </div>
+      <div class="card"><h3>👥 Đội sale hôm nay</h3>
+        ${activeStaff().length ? `<ul class="list">${activeStaff().map(s => {
+          const open = S.teamTasks.filter(x => x.staffId === s.id && x.status !== 'done');
+          const late = open.filter(x => x.due && x.due < t).length;
+          const done = S.teamTasks.filter(x => x.staffId === s.id && x.status === 'done' && (x.doneAt || '').slice(0, 10) === t).length;
+          return `<li class="item"><div class="body"><div class="title">${esc(s.name)} ${turn && turn.id === s.id ? '<span class="tag green">Tới lượt</span>' : ''}</div>
+            <div class="meta"><span>${open.length} việc đang mở</span>${late ? `<span class="red-t">${late} quá hạn</span>` : ''}<span>${done} xong hôm nay</span></div></div></li>`;
+        }).join('')}</ul>` : '<div class="empty">Chưa có nhân viên – vào tab Đội sale để thêm.</div>'}
+      </div>
+    </div>
+  </div>`;
+};
+
+VIEWS.congviec = () => {
+  const t = today();
+  let list = S.tasks.slice();
+  if (UI.taskFilter === 'open') list = list.filter(x => !x.done);
+  else if (UI.taskFilter === 'done') list = list.filter(x => x.done);
+  else if (UI.taskFilter === 'today') list = list.filter(x => x.due === t);
+  else if (UI.taskFilter === 'late') list = list.filter(x => !x.done && x.due && x.due < t);
+  else if (UI.taskFilter !== 'all') list = list.filter(x => x.cat === UI.taskFilter);
+  list.sort((a, b) => (a.done - b.done) || (a.due || '9999').localeCompare(b.due || '9999'));
+  const filters = [['open', 'Chưa xong'], ['today', 'Hôm nay'], ['late', 'Quá hạn'], ['done', 'Đã xong'], ['all', 'Tất cả'], ...TASK_CATS.map(c => [c, c])];
+  return `<div class="toolbar"><h2 style="margin:0" class="grow">Việc của anh</h2><button class="btn primary" data-act="addTask">+ Thêm việc</button></div>
+    <div class="chips">${filters.map(([k, l]) => `<button class="chip ${UI.taskFilter === k ? 'on' : ''}" data-act="setUI" data-k="taskFilter" data-v="${esc(k)}">${esc(l)}</button>`).join('')}</div>
+    <div class="card">${list.length ? `<ul class="list">${list.map(taskItem).join('')}</ul>` : '<div class="empty">Không có việc nào.</div>'}</div>`;
+};
+
+function adsSummary(rows) {
+  const r = { spend: sum(rows, 'spend'), messages: sum(rows, 'messages'), leads: sum(rows, 'leads'), phones: sum(rows, 'phones'), testDrives: sum(rows, 'testDrives'), deposits: sum(rows, 'deposits'), sold: sum(rows, 'sold') };
+  r.cpl = r.leads ? Math.round(r.spend / r.leads) : 0;
+  r.cpp = r.phones ? Math.round(r.spend / r.phones) : 0;
+  return r;
+}
+function adsCard(title, r) {
+  return `<div class="stat"><div class="lb">${title}</div><div class="v">${short(r.spend)}</div>
+    <div class="sub">${r.messages} tin nhắn · ${r.leads} lead · ${r.phones} SĐT</div>
+    <div class="sub">Giá/lead: <b>${r.cpl ? short(r.cpl) : '–'}</b> · Giá/SĐT: <b>${r.cpp ? short(r.cpp) : '–'}</b></div>
+    <div class="sub">${r.testDrives} lái thử · ${r.deposits} cọc · ${r.sold} bán · chốt ${pct(r.deposits, r.leads)}%</div></div>`;
+}
+
+VIEWS.quangcao = () => {
+  const t = today();
+  const rows = S.ads.filter(a => !UI.adsPlatform || a.platform === UI.adsPlatform).sort((a, b) => b.date.localeCompare(a.date));
+  const days = [...Array(14)].map((_, i) => addDays(t, i - 13));
+  const perDay = days.map(d => adsSummary(rows.filter(a => a.date === d)));
+  const max = Math.max(1, ...perDay.map(r => r.spend));
+  return `<div class="toolbar"><h2 style="margin:0" class="grow">Quảng cáo</h2>
+      <select data-ui="adsPlatform"><option value="">Tất cả kênh</option>${PLATFORMS.map(p => `<option ${UI.adsPlatform === p ? 'selected' : ''}>${p}</option>`).join('')}</select>
+      <button class="btn primary" data-act="addAds">+ Nhập số liệu</button></div>
+    <div class="grid">
+      ${adsCard('Hôm nay', adsSummary(rows.filter(a => a.date === t)))}
+      ${adsCard('7 ngày qua', adsSummary(rows.filter(a => a.date > addDays(t, -7))))}
+      ${adsCard('Tháng này', adsSummary(rows.filter(a => a.date.startsWith(thisMonth()))))}
+    </div>
+    <div class="card"><h3>Chi phí 14 ngày (số trên cột = số lead)</h3>
+      <div class="chart">${perDay.map((r, i) => `<div class="col" title="${fdate(days[i])}: ${money(r.spend)} – ${r.leads} lead"><em>${r.leads || ''}</em><i style="height:${Math.round(r.spend / max * 100)}%"></i><span>${days[i].slice(8)}</span></div>`).join('')}</div>
+    </div>
+    <div class="card"><h3>Nhật ký số liệu</h3>
+      ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Kênh</th><th>Chi phí</th><th>Tin nhắn</th><th>Lead</th><th>SĐT bot</th><th>Lái thử</th><th>Cọc</th><th>Bán</th><th>Giá/lead</th><th>Giá/SĐT</th><th></th></tr></thead><tbody>
+        ${rows.map(a => `<tr><td>${fdate(a.date)}</td><td>${esc(a.platform)}${a.campaign ? `<br><small class="muted">${esc(a.campaign)}</small>` : ''}</td><td>${money(a.spend)}</td><td>${a.messages}</td><td>${a.leads}</td><td>${a.phones}</td><td>${a.testDrives}</td><td>${a.deposits}</td><td>${a.sold}</td>
+          <td>${a.leads ? money(Math.round(a.spend / a.leads)) : '–'}</td><td>${a.phones ? money(Math.round(a.spend / a.phones)) : '–'}</td>
+          <td><button class="btn sm" data-act="editAds" data-id="${a.id}">Sửa</button> <button class="btn sm danger" data-act="delAds" data-id="${a.id}">Xóa</button></td></tr>`).join('')}
+      </tbody></table></div>` : '<div class="empty">Chưa có số liệu. Bấm "+ Nhập số liệu" mỗi cuối ngày.</div>'}
+    </div>`;
+};
+
+function custItem(c) {
+  const t = today();
+  const st = c.status;
+  const tagCls = st === 'coc' ? 'green' : st === 'giao' ? 'gray' : st === 'huy' ? 'red' : st === 'moi' ? 'orange' : '';
+  const lateFollow = c.nextFollow && c.nextFollow < t && ['moi', 'chamsoc', 'coc'].includes(st);
+  return `<li class="item"><div class="body">
+    <div class="title">${esc(c.name)} <span class="tag ${tagCls}">${esc(label(CUST_STATUS, st))}</span></div>
+    <div class="meta">${c.phone ? `<a href="tel:${esc(normPhone(c.phone))}">📞 ${esc(c.phone)}</a>` : ''}
+      <span>🚗 ${esc(c.model || 'Chưa rõ')}</span><span>📥 ${esc(c.source || '')}</span><span>👤 ${esc(staffName(c.saleId))}</span>
+      ${c.nextFollow ? `<span class="${lateFollow ? 'red-t' : ''}">🔔 ${fdate(c.nextFollow)}</span>` : ''}
+      ${st === 'coc' ? `<span>💵 Cọc ${money(c.deposit)}${c.deliveryDate ? ' · giao ' + fdate(c.deliveryDate) : ''}</span>` : ''}</div>
+    ${c.note ? `<div class="meta">📝 ${esc(c.note)}</div>` : ''}</div>
+    <div class="acts">
+      <select class="inline-select" data-chg="custStatus" data-id="${c.id}">${CUST_STATUS.map(([k, l]) => `<option value="${k}" ${k === st ? 'selected' : ''}>${l}</option>`).join('')}</select>
+      <button class="btn sm zalo" data-act="sendCust" data-id="${c.id}">Gửi sale</button>
+      <button class="btn sm" data-act="editCust" data-id="${c.id}">Sửa</button>
+      <button class="btn sm danger" data-act="delCust" data-id="${c.id}">Xóa</button></div></li>`;
+}
+
+VIEWS.khachhang = () => {
+  const q = UI.custSearch.toLowerCase();
+  let list = S.customers.filter(c => (UI.custFilter === 'all' || c.status === UI.custFilter) && (!UI.custSale || (c.saleId || 'none') === UI.custSale));
+  if (q) list = list.filter(c => [c.name, c.phone, c.model, c.note].join(' ').toLowerCase().includes(q));
+  list.sort((a, b) => (a.nextFollow || '9999').localeCompare(b.nextFollow || '9999') || (b.createdAt || '').localeCompare(a.createdAt || ''));
+  const counts = k => S.customers.filter(c => k === 'all' || c.status === k).length;
+  return `<div class="toolbar"><h2 style="margin:0" class="grow">Khách hàng</h2>
+      <button class="btn" data-act="importCust">📥 Nhập danh sách</button>
+      <button class="btn primary" data-act="addCust">+ Thêm khách</button></div>
+    <div class="chips">${[...CUST_STATUS, ['all', 'Tất cả']].map(([k, l]) => `<button class="chip ${UI.custFilter === k ? 'on' : ''}" data-act="setUI" data-k="custFilter" data-v="${k}">${l}<b>${counts(k)}</b></button>`).join('')}</div>
+    <div class="toolbar"><div class="grow"><input type="search" placeholder="Tìm tên, SĐT, dòng xe..." value="${esc(UI.custSearch)}" data-ui="custSearch"></div>
+      <select data-ui="custSale"><option value="">Mọi sale</option><option value="none" ${UI.custSale === 'none' ? 'selected' : ''}>Chưa giao</option>${S.staff.map(s => `<option value="${s.id}" ${UI.custSale === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></div>
+    <div class="card">${list.length ? `<ul class="list">${list.map(custItem).join('')}</ul>` : '<div class="empty">Không có khách nào ở mục này.</div>'}</div>`;
+};
+
+function teamItem(x) {
+  const t = today();
+  const late = x.status !== 'done' && x.due && x.due < t;
+  const s = S.staff.find(p => p.id === x.staffId);
+  return `<li class="item ${x.status === 'done' ? 'done' : ''}"><div class="body">
+    <div class="title">${esc(x.title)}</div>
+    <div class="meta"><span>👤 <b>${esc(s ? s.name : 'Chưa giao')}</b></span>${x.due ? `<span class="${late ? 'red-t' : ''}">📅 ${fdate(x.due)}${late ? ' (quá hạn)' : ''}</span>` : ''}
+      <span class="tag ${x.status === 'done' ? 'green' : x.status === 'doing' ? 'orange' : 'gray'}">${label(TEAM_STATUS, x.status)}</span></div>
+    ${x.detail ? `<div class="meta">${esc(x.detail)}</div>` : ''}
+    <details><summary>Lịch sử (${(x.log || []).length})</summary><ul>${(x.log || []).map(l => `<li>${esc(l.t.slice(8, 10) + '/' + l.t.slice(5, 7) + ' ' + l.t.slice(11, 16))} – ${esc(l.msg)}</li>`).join('')}</ul></details></div>
+    <div class="acts">
+      <select class="inline-select" data-chg="teamStatus" data-id="${x.id}">${TEAM_STATUS.map(([k, l]) => `<option value="${k}" ${k === x.status ? 'selected' : ''}>${l}</option>`).join('')}</select>
+      <button class="btn sm zalo" data-act="zaloTeam" data-id="${x.id}">Gửi Zalo</button>
+      <button class="btn sm" data-act="editTeam" data-id="${x.id}">Sửa</button>
+      <button class="btn sm danger" data-act="delTeam" data-id="${x.id}">Xóa</button></div></li>`;
+}
+
+VIEWS.doisale = () => {
+  const t = today(), turn = peekTurn();
+  let tasks = S.teamTasks.filter(x => !UI.teamStaff || x.staffId === UI.teamStaff);
+  if (UI.teamFilter === 'open') tasks = tasks.filter(x => x.status !== 'done');
+  else if (UI.teamFilter === 'late') tasks = tasks.filter(x => x.status !== 'done' && x.due && x.due < t);
+  else if (UI.teamFilter === 'done') tasks = tasks.filter(x => x.status === 'done');
+  tasks.sort((a, b) => (a.status === 'done') - (b.status === 'done') || (a.due || '9999').localeCompare(b.due || '9999'));
+  return `<div class="toolbar"><h2 style="margin:0" class="grow">Đội sale</h2>
+      <button class="btn" data-act="addStaff">+ Nhân viên</button>
+      <button class="btn primary" data-act="addTeam">+ Giao việc</button></div>
+    <div class="card"><h3>Nhân viên ${turn ? `<span class="muted" style="font-weight:400;font-size:13px">Tới lượt nhận việc/lead: <b class="green-t">${esc(turn.name)}</b> <button class="btn sm" data-act="skipTurn">Bỏ qua lượt</button></span>` : ''}</h3>
+      ${S.staff.length ? `<div class="grid">${S.staff.map(s => {
+        const mine = S.teamTasks.filter(x => x.staffId === s.id);
+        const open = mine.filter(x => x.status !== 'done');
+        const late = open.filter(x => x.due && x.due < t).length;
+        const cust = S.customers.filter(c => c.saleId === s.id);
+        return `<div class="stat ${turn && turn.id === s.id ? 'turn' : ''}" style="${s.active === false ? 'opacity:.55' : ''}">
+          <div class="v" style="font-size:16px">${esc(s.name)} ${s.active === false ? '<span class="tag gray">Nghỉ</span>' : ''}</div>
+          <div class="sub">${s.phone ? esc(s.phone) : 'Chưa có SĐT'}${s.target ? ` · mục tiêu ${s.target} xe/tháng` : ''}</div>
+          <div class="sub">${open.length} việc mở ${late ? `· <span class="red-t">${late} quá hạn</span>` : ''} · ${mine.length - open.length} xong</div>
+          <div class="sub">${cust.filter(c => ['moi', 'chamsoc'].includes(c.status)).length} lead · ${cust.filter(c => c.status === 'coc').length} cọc · ${cust.filter(c => c.status === 'giao').length} đã giao</div>
+          <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap"><button class="btn sm" data-act="editStaff" data-id="${s.id}">Sửa</button>
+            <button class="btn sm" data-act="toggleStaff" data-id="${s.id}">${s.active === false ? 'Bật lại' : 'Tạm nghỉ'}</button>
+            <button class="btn sm danger" data-act="delStaff" data-id="${s.id}">Xóa</button></div></div>`;
+      }).join('')}</div>` : '<div class="empty">Thêm nhân viên sale để bắt đầu chia việc theo lượt.</div>'}
+    </div>
+    <div class="chips">${[['open', 'Đang mở'], ['late', 'Quá hạn'], ['done', 'Đã xong'], ['all', 'Tất cả']].map(([k, l]) => `<button class="chip ${UI.teamFilter === k ? 'on' : ''}" data-act="setUI" data-k="teamFilter" data-v="${k}">${l}</button>`).join('')}
+      <select data-ui="teamStaff" class="inline-select"><option value="">Mọi người</option>${S.staff.map(s => `<option value="${s.id}" ${UI.teamStaff === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></div>
+    <div class="card"><h3>Việc đã giao</h3>${tasks.length ? `<ul class="list">${tasks.map(teamItem).join('')}</ul>` : '<div class="empty">Chưa có việc nào.</div>'}</div>`;
+};
+
+VIEWS.taichinh = () => {
+  const rows = S.finance.filter(f => f.date.startsWith(UI.finMonth)).sort((a, b) => b.date.localeCompare(a.date));
+  const inc = rows.filter(f => f.type === 'thu'), exp = rows.filter(f => f.type === 'chi');
+  const ti = sum(inc, 'amount'), te = sum(exp, 'amount');
+  const byCat = {};
+  exp.forEach(f => { byCat[f.cat] = (byCat[f.cat] || 0) + Number(f.amount); });
+  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  return `<div class="toolbar"><h2 style="margin:0" class="grow">Thu chi</h2>
+      <input type="month" value="${UI.finMonth}" data-ui="finMonth">
+      <button class="btn" data-act="addFin" data-id="thu">+ Thu</button><button class="btn primary" data-act="addFin" data-id="chi">+ Chi</button></div>
+    <div class="grid">
+      <div class="stat"><div class="lb">Tổng thu</div><div class="v green-t">${money(ti)}</div></div>
+      <div class="stat"><div class="lb">Tổng chi</div><div class="v red-t">${money(te)}</div></div>
+      <div class="stat"><div class="lb">Còn lại</div><div class="v ${ti - te < 0 ? 'red-t' : ''}">${money(ti - te)}</div></div>
+    </div>
+    <div class="cols">
+      <div class="card"><h3>Chi theo danh mục</h3>${cats.length ? cats.map(([c, v]) => `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between"><span>${esc(c)}</span><b>${money(v)}</b></div><div class="bar"><i style="width:${pct(v, te)}%"></i></div></div>`).join('') : '<div class="empty">Chưa có khoản chi.</div>'}</div>
+      <div class="card"><h3>Giao dịch</h3>${rows.length ? `<ul class="list">${rows.map(f => `<li class="item"><div class="body"><div class="title ${f.type === 'thu' ? 'green-t' : 'red-t'}">${f.type === 'thu' ? '+' : '−'}${money(f.amount)}</div>
+        <div class="meta"><span>${fdate(f.date)}</span><span class="tag">${esc(f.cat)}</span>${f.note ? `<span>${esc(f.note)}</span>` : ''}</div></div>
+        <div class="acts"><button class="btn sm" data-act="editFin" data-id="${f.id}">Sửa</button><button class="btn sm danger" data-act="delFin" data-id="${f.id}">Xóa</button></div></li>`).join('')}</ul>` : '<div class="empty">Chưa có giao dịch trong tháng.</div>'}</div>
+    </div>`;
+};
+
+function streak(h) {
+  let n = 0, d = today();
+  if (!h.days?.[d]) d = addDays(d, -1);
+  while (h.days?.[d]) { n++; d = addDays(d, -1); }
+  return n;
+}
+
+VIEWS.thoiquen = () => {
+  const t = today();
+  const days = [...Array(7)].map((_, i) => addDays(t, i - 6));
+  return `<div class="toolbar"><h2 style="margin:0" class="grow">Thói quen & sức khỏe</h2><button class="btn primary" data-act="addHabit">+ Thói quen</button></div>
+    <div class="card">${S.habits.length ? `<ul class="list">${S.habits.map(h => `<li class="item">
+      <input type="checkbox" data-act="toggleHabit" data-id="${h.id}" data-day="${t}" ${h.days?.[t] ? 'checked' : ''} aria-label="Hôm nay">
+      <div class="body"><div class="title">${esc(h.name)}</div><div class="meta"><span>🔥 Chuỗi ${streak(h)} ngày</span>${h.note ? `<span>${esc(h.note)}</span>` : ''}</div>
+        <div class="dots" style="margin-top:6px">${days.map(d => `<button class="dot ${h.days?.[d] ? 'on' : ''}" data-act="toggleHabit" data-id="${h.id}" data-day="${d}" title="${fdate(d)}">${d.slice(8)}</button>`).join('')}</div></div>
+      <div class="acts"><button class="btn sm" data-act="editHabit" data-id="${h.id}">Sửa</button><button class="btn sm danger" data-act="delHabit" data-id="${h.id}">Xóa</button></div></li>`).join('')}</ul>`
+      : `<div class="empty">Chưa có thói quen. Gợi ý: Uống 2 lít nước, Tập thể dục 30 phút, Ngủ trước 23h, Đọc sách 15 phút.</div>
+         <button class="btn" data-act="sampleHabits">Thêm các thói quen gợi ý</button>`}</div>`;
+};
+
+VIEWS.muctieu = () => {
+  const goals = S.goals.slice().sort((a, b) => (a.deadline || '9999').localeCompare(b.deadline || '9999'));
+  const journal = S.journal.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30);
+  return `<div class="cols">
+    <div><div class="toolbar"><h2 style="margin:0" class="grow">Mục tiêu</h2><button class="btn primary" data-act="addGoal">+ Mục tiêu</button></div>
+      <div class="card">${goals.length ? `<ul class="list">${goals.map(g => `<li class="item"><div class="body">
+        <div class="title">${esc(g.title)}</div>
+        <div class="meta"><span class="tag">${esc(g.area)}</span>${g.deadline ? `<span>📅 ${fdate(g.deadline)}/${g.deadline.slice(0, 4)}</span>` : ''}<span><b>${g.progress || 0}%</b></span></div>
+        ${g.note ? `<div class="meta">${esc(g.note)}</div>` : ''}
+        <div class="bar green"><i style="width:${g.progress || 0}%"></i></div></div>
+        <div class="acts"><button class="btn sm" data-act="goalStep" data-id="${g.id}" data-v="-10">−10%</button><button class="btn sm" data-act="goalStep" data-id="${g.id}" data-v="10">+10%</button>
+          <button class="btn sm" data-act="editGoal" data-id="${g.id}">Sửa</button><button class="btn sm danger" data-act="delGoal" data-id="${g.id}">Xóa</button></div></li>`).join('')}</ul>`
+        : '<div class="empty">Ví dụ: "Bán 10 xe/tháng", "Mở kênh TikTok đạt 1.000 follow", "Tiết kiệm 50 triệu".</div>'}</div></div>
+    <div><div class="toolbar"><h2 style="margin:0" class="grow">Nhật ký</h2><button class="btn primary" data-act="addJournal">+ Viết hôm nay</button></div>
+      <div class="card">${journal.length ? `<ul class="list">${journal.map(j => `<li class="item"><div class="body">
+        <div class="title">${fdate(j.date)}/${j.date.slice(0, 4)} · ${esc(j.mood)}</div>
+        <div style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(j.text)}</div></div>
+        <div class="acts"><button class="btn sm" data-act="editJournal" data-id="${j.id}">Sửa</button><button class="btn sm danger" data-act="delJournal" data-id="${j.id}">Xóa</button></div></li>`).join('')}</ul>`
+        : '<div class="empty">Ghi lại điều làm được, bài học trong ngày và tâm trạng của anh.</div>'}</div></div>
+  </div>`;
+};
+
+// ===== Form từng loại dữ liệu =====
+const taskFields = () => [
+  { k: 'title', label: 'Việc cần làm', required: true, full: true },
+  { k: 'cat', label: 'Nhóm', type: 'select', options: TASK_CATS },
+  { k: 'priority', label: 'Ưu tiên', type: 'select', options: PRIORITY, def: 'tb' },
+  { k: 'due', label: 'Hạn', type: 'date', def: today() },
+  { k: 'note', label: 'Ghi chú' }
+];
+const adsFields = () => [
+  { k: 'date', label: 'Ngày', type: 'date', def: today(), required: true },
+  { k: 'platform', label: 'Kênh', type: 'select', options: PLATFORMS },
+  { k: 'campaign', label: 'Chiến dịch / dòng xe', full: true, ph: 'VD: VF 3 – tháng 10' },
+  { k: 'spend', label: 'Chi phí (đ)', type: 'number' },
+  { k: 'messages', label: 'Tin nhắn / lượt chat', type: 'number' },
+  { k: 'leads', label: 'Số lead', type: 'number' },
+  { k: 'phones', label: 'SĐT bot thu được', type: 'number' },
+  { k: 'testDrives', label: 'Hẹn / lái thử', type: 'number' },
+  { k: 'deposits', label: 'Đặt cọc', type: 'number' },
+  { k: 'sold', label: 'Bán được', type: 'number' },
+  { k: 'note', label: 'Ghi chú', type: 'textarea', full: true, rows: 2 }
+];
+const custFields = isNew => [
+  { k: 'name', label: 'Tên khách', required: true },
+  { k: 'phone', label: 'Số điện thoại', type: 'tel' },
+  { k: 'model', label: 'Dòng xe quan tâm', type: 'select', options: CAR_MODELS },
+  { k: 'source', label: 'Nguồn', type: 'select', options: SOURCES },
+  { k: 'status', label: 'Trạng thái', type: 'select', options: CUST_STATUS },
+  { k: 'saleId', label: 'Sale phụ trách', type: 'select', options: [...(isNew ? [['auto', `Tự động theo lượt (${peekTurn()?.name || 'chưa có sale'})`]] : []), ['', 'Chưa giao'], ...S.staff.map(s => [s.id, s.name])], def: isNew ? 'auto' : '' },
+  { k: 'nextFollow', label: 'Ngày chăm sóc tiếp', type: 'date', def: isNew ? today() : '' },
+  { k: 'deposit', label: 'Tiền cọc (đ)', type: 'number' },
+  { k: 'deliveryDate', label: 'Ngày giao xe dự kiến', type: 'date' },
+  { k: 'note', label: 'Ghi chú', type: 'textarea', full: true, rows: 2 }
+];
+const teamFields = isNew => [
+  { k: 'title', label: 'Việc cần làm', required: true, full: true },
+  { k: 'staffId', label: 'Giao cho', type: 'select', options: [...(isNew ? [['auto', `Tự động – tới lượt ${peekTurn()?.name || ''}`]] : []), ...S.staff.map(s => [s.id, s.name])], def: isNew ? 'auto' : '' },
+  { k: 'due', label: 'Hạn', type: 'date', def: today() },
+  { k: 'detail', label: 'Chi tiết', type: 'textarea', full: true }
+];
+const staffFields = () => [
+  { k: 'name', label: 'Tên nhân viên', required: true },
+  { k: 'phone', label: 'SĐT / Zalo', type: 'tel' },
+  { k: 'target', label: 'Mục tiêu xe/tháng', type: 'number' }
+];
+const finFields = type => [
+  { k: 'amount', label: 'Số tiền (đ)', type: 'number', required: true },
+  { k: 'date', label: 'Ngày', type: 'date', def: today() },
+  { k: 'cat', label: 'Danh mục', type: 'select', options: type === 'thu' ? INCOME_CATS : EXPENSE_CATS },
+  { k: 'note', label: 'Ghi chú' }
+];
+const habitFields = () => [{ k: 'name', label: 'Tên thói quen', required: true, full: true }, { k: 'note', label: 'Ghi chú', full: true }];
+const goalFields = () => [
+  { k: 'title', label: 'Mục tiêu', required: true, full: true },
+  { k: 'area', label: 'Lĩnh vực', type: 'select', options: GOAL_AREAS },
+  { k: 'deadline', label: 'Hạn', type: 'date' },
+  { k: 'progress', label: 'Tiến độ (%)', type: 'number' },
+  { k: 'note', label: 'Kế hoạch / ghi chú' }
+];
+const journalFields = () => [
+  { k: 'date', label: 'Ngày', type: 'date', def: today() },
+  { k: 'mood', label: 'Tâm trạng', type: 'select', options: MOODS, def: MOODS[1] },
+  { k: 'text', label: 'Hôm nay thế nào?', type: 'textarea', full: true, rows: 6, ph: 'Việc làm được, bài học, điều biết ơn...' }
+];
+
+const find = (arr, id) => S[arr].find(x => x.id === id);
+const del = (arr, id, what) => {
+  if (!confirm(`Xóa ${what} này?`)) return;
+  S[arr] = S[arr].filter(x => x.id !== id);
+  S.deleted[id] = Date.now();
+  save(); render();
+};
+const nowIso = () => new Date().toLocaleString('sv-SE').replace(' ', 'T');
+const logTeam = (x, msg) => { (x.log = x.log || []).push({ t: nowIso(), msg }); };
+
+function teamMessage(x) {
+  return `📌 VIỆC CẦN LÀM\n• ${x.title}${x.detail ? '\n• Chi tiết: ' + x.detail : ''}${x.due ? '\n• Hạn: ' + fdate(x.due) + '/' + x.due.slice(0, 4) : ''}\nEm nhận việc và báo lại khi xong nhé!`;
+}
+
+// ===== Dữ liệu mẫu để xem thử =====
+function loadDemo() {
+  const t = today(), d = n => addDays(t, n), demo = true;
+  const st = [['Minh', '0901111111', 5], ['Lan', '0902222222', 4], ['Hùng', '0903333333', 4]]
+    .map(([name, phone, target]) => ({ id: uid(), name, phone, target, active: true, demo }));
+  S.staff.push(...st);
+  const [m, l, h] = st.map(x => x.id);
+  [[-6, 1.2e6, 35, 11, 5, 2, 1, 0], [-5, 1.4e6, 41, 13, 6, 1, 0, 1], [-4, 1.1e6, 30, 9, 4, 2, 1, 0], [-3, 1.6e6, 48, 15, 8, 3, 1, 1],
+   [-2, 1.5e6, 44, 12, 6, 2, 0, 0], [-1, 1.3e6, 39, 12, 5, 1, 1, 0], [0, 1.8e6, 46, 10, 4, 1, 0, 0]]
+    .forEach(([n, spend, messages, leads, phones, testDrives, deposits, sold]) =>
+      S.ads.push({ id: uid(), date: d(n), platform: 'Facebook', campaign: 'VF 3 / VF 5 – tháng này', spend, messages, leads, phones, testDrives, deposits, sold, demo }));
+  [['Nguyễn Văn An', '0911000001', 'VF 5', 'Bot Facebook', 'moi', '', 0, '', 'Hỏi trả góp 70%', 0],
+   ['Trần Thị Bình', '0911000002', 'VF 3', 'Pancake', 'moi', m, 0, '', 'Muốn xem màu vàng', 0],
+   ['Lê Quốc Cường', '0911000003', 'VF 6', 'Bot Zalo', 'chamsoc', l, 0, '', 'Hẹn lái thử cuối tuần', 0],
+   ['Phạm Minh Dũng', '0911000004', 'VF 7', 'Facebook Ads', 'chamsoc', h, 0, '', 'So sánh với xe xăng', -1],
+   ['Hoàng Thu Hà', '0911000005', 'VF 5', 'Facebook Ads', 'coc', m, 20e6, d(2), 'Giao xe tại showroom', 1],
+   ['Đỗ Văn Khoa', '0911000006', 'VF 8', 'Giới thiệu', 'coc', l, 50e6, '', 'Chờ duyệt ngân hàng', 0],
+   ['Vũ Thị Lan', '0911000007', 'VF 3', 'Bot Facebook', 'giao', h, 15e6, d(-3), '', 0]]
+    .forEach(([name, phone, model, source, status, saleId, deposit, deliveryDate, note, f]) =>
+      S.customers.push({ id: uid(), name, phone, model, source, status, saleId, deposit, deliveryDate, note, nextFollow: status === 'giao' ? '' : d(f), createdAt: d(status === 'moi' ? (name.startsWith('Ng') ? 0 : -1) : -5) + 'T09:00:00', demo }));
+  [['Gọi lại 10 khách cũ chưa chốt', m, d(-1), 'todo'], ['Chuẩn bị hồ sơ giao xe khách Hà', m, d(1), 'doing'],
+   ['Đăng 3 bài review VF 6 lên Facebook cá nhân', l, d(0), 'todo'], ['Báo giá lăn bánh VF 7 cho khách Dũng', h, d(0), 'done']]
+    .forEach(([title, staffId, due, status]) => S.teamTasks.push({ id: uid(), title, staffId, due, status, detail: '', createdAt: d(-1) + 'T08:00:00', doneAt: status === 'done' ? t + 'T10:00:00' : '', log: [{ t: d(-1) + 'T08:00:00', msg: 'Giao cho ' + staffName(staffId) }], demo }));
+  [['Duyệt nội dung quảng cáo VF 3 mới', 'Quảng cáo', 'cao', d(0), true], ['Họp đội sale 8h sáng', 'Đội sale', 'tb', d(0), true],
+   ['Gửi báo cáo ads tuần cho sếp', 'Quảng cáo', 'cao', d(0), false], ['Cập nhật kịch bản bot Zalo', 'Quảng cáo', 'tb', d(-1), false],
+   ['Đón con lúc 17h', 'Gia đình', 'tb', d(0), false]]
+    .forEach(([title, cat, priority, due, done]) => S.tasks.push({ id: uid(), title, cat, priority, due, done, doneAt: done ? t + 'T09:00:00' : '', createdAt: d(-1) + 'T07:00:00', demo }));
+  [['thu', 15e6, 'Hoa hồng bán xe'], ['chi', 9.9e6, 'Quảng cáo'], ['chi', 3.2e6, 'Ăn uống'], ['chi', 1.5e6, 'Đi lại'], ['chi', 4e6, 'Gia đình']]
+    .forEach(([type, amount, cat], i) => S.finance.push({ id: uid(), type, amount, cat, date: d(-i), note: '', demo }));
+  ['Uống 2 lít nước', 'Tập thể dục 30 phút', 'Ngủ trước 23h'].forEach((name, i) => {
+    const days = {};
+    for (let k = 1; k <= 5 - i; k++) days[d(-k)] = true;
+    if (i === 0) days[t] = true;
+    S.habits.push({ id: uid(), name, days, demo });
+  });
+  [['Bán 10 xe tháng này', 'Công việc', 40], ['Mở kênh TikTok đạt 1.000 follow', 'Công việc', 10], ['Tiết kiệm 50 triệu', 'Tài chính', 30]]
+    .forEach(([title, area, progress], i) => S.goals.push({ id: uid(), title, area, progress, deadline: d(10 + i * 30), demo }));
+  S.journal.push({ id: uid(), date: d(-1), mood: MOODS[0], text: 'Bot AI trả lời khách rất ổn, lấy được nhiều SĐT. Cần nhắc Minh gọi lại khách cũ.', demo });
+  save(); render(); toast('Đã nạp dữ liệu mẫu – xem thử các tab nhé!');
+}
+function clearDemo() {
+  ARRAYS.forEach(k => S[k] = S[k].filter(x => { if (x.demo) S.deleted[x.id] = Date.now(); return !x.demo; }));
+  S.rrIndex = 0;
+  save(); render(); toast('Đã xóa dữ liệu mẫu');
+}
+const hasDemo = () => ARRAYS.some(k => S[k].some(x => x.demo));
+
+// ===== Hành động =====
+const ACTS = {
+  setUI: el => { UI[el.dataset.k] = el.dataset.v; render(); },
+  quickAdd: () => ACTS.addTask(),
+
+  addTask: () => openForm('Thêm việc', taskFields(), {}, d => S.tasks.push({ id: uid(), ...d, done: false, createdAt: nowIso() })),
+  editTask: el => { const x = find('tasks', el.dataset.id); openForm('Sửa việc', taskFields(), x, d => Object.assign(x, d)); },
+  delTask: el => del('tasks', el.dataset.id, 'việc'),
+  toggleTask: el => { const x = find('tasks', el.dataset.id); x.done = !x.done; x.doneAt = x.done ? nowIso() : ''; save(); render(); },
+  addSugg: el => {
+    const s = suggestions()[Number(el.dataset.id)];
+    if (!s) return;
+    S.tasks.push({ id: uid(), title: s.text, cat: s.cat, priority: s.pri, due: addDays(today(), 1), done: false, createdAt: nowIso() });
+    save(); render(); toast('Đã thêm vào việc ngày mai');
+  },
+  addAllSugg: () => {
+    const tm = addDays(today(), 1);
+    let n = 0;
+    suggestions().forEach(s => {
+      if (S.tasks.some(x => x.title === s.text && x.due === tm)) return;
+      S.tasks.push({ id: uid(), title: s.text, cat: s.cat, priority: s.pri, due: tm, done: false, createdAt: nowIso() });
+      n++;
+    });
+    save(); render(); toast(`Đã thêm ${n} việc cho ngày mai`);
+  },
+
+  addAds: () => openForm('Nhập số liệu quảng cáo', adsFields(), {}, d => S.ads.push({ id: uid(), ...d })),
+  editAds: el => { const x = find('ads', el.dataset.id); openForm('Sửa số liệu', adsFields(), x, d => Object.assign(x, d)); },
+  delAds: el => del('ads', el.dataset.id, 'dòng số liệu'),
+
+  addCust: () => openForm('Thêm khách hàng', custFields(true), {}, d => {
+    if (d.saleId === 'auto') d.saleId = takeTurn()?.id || '';
+    if (d.phone && S.customers.some(c => normPhone(c.phone) === normPhone(d.phone))) toast('⚠️ Số điện thoại này đã có trong danh sách');
+    S.customers.push({ id: uid(), ...d, createdAt: nowIso() });
+  }),
+  editCust: el => { const x = find('customers', el.dataset.id); openForm('Sửa khách hàng', custFields(false), x, d => Object.assign(x, d, { updatedAt: nowIso() })); },
+  delCust: el => del('customers', el.dataset.id, 'khách hàng'),
+  sendCust: el => {
+    const c = find('customers', el.dataset.id);
+    const s = S.staff.find(p => p.id === c.saleId);
+    const msg = `🚗 KHÁCH HÀNG ${c.status === 'coc' ? 'ĐÃ CỌC' : 'CẦN CHĂM SÓC'}\n• Tên: ${c.name}\n• SĐT: ${c.phone || '—'}\n• Xe: ${c.model || 'Chưa rõ'}\n• Nguồn: ${c.source || ''}${c.note ? '\n• Ghi chú: ' + c.note : ''}${c.nextFollow ? '\n• Gọi lại trước: ' + fdate(c.nextFollow) : ''}\nEm liên hệ khách và báo lại kết quả nhé!`;
+    if (!s) toast('Khách chưa có sale phụ trách – tin nhắn đã được sao chép');
+    sendZalo(s?.phone, msg);
+  },
+  importCust: () => {
+    const m = $('#modal');
+    m.innerHTML = `<div class="modal-box"><h3>📥 Nhập danh sách khách</h3>
+      <p class="muted" style="margin-top:0;font-size:13.5px">Dán danh sách từ Excel, Pancake, Google Sheet hoặc tin nhắn bot. Mỗi dòng 1 khách, có tên và SĐT (có thể thêm dòng xe, ghi chú), cách nhau bởi dấu phẩy hoặc tab.</p>
+      <form class="form" id="iform">
+        <label class="field full"><span>Danh sách</span><textarea name="txt" rows="8" placeholder="Nguyễn Văn A, 0901234567, VF 5, hỏi trả góp&#10;Trần Thị B	0912345678	VF 3"></textarea></label>
+        ${fieldHtml({ k: 'source', label: 'Nguồn', type: 'select', options: SOURCES, def: 'Pancake' }, null)}
+        ${fieldHtml({ k: 'assign', label: 'Chia cho sale', type: 'select', options: [['auto', 'Tự động theo lượt'], ['', 'Chưa chia']], def: 'auto' }, null)}
+        <div class="row-end"><button type="button" class="btn ghost" data-close>Hủy</button><button class="btn primary">Nhập</button></div>
+      </form></div>`;
+    m.hidden = false;
+    m.querySelector('[data-close]').onclick = closeModal;
+    $('#iform').onsubmit = e => {
+      e.preventDefault();
+      const f = e.target.elements;
+      const res = importCustomers(f.txt.value, f.source.value, f.assign.value === 'auto');
+      closeModal(); save(); render();
+      toast(`Đã nhập ${res.added} khách${res.dup ? `, bỏ qua ${res.dup} số trùng` : ''}${res.bad ? `, ${res.bad} dòng không có SĐT` : ''}`);
+    };
+  },
+
+  addStaff: () => openForm('Thêm nhân viên sale', staffFields(), {}, d => S.staff.push({ id: uid(), ...d, active: true })),
+  editStaff: el => { const x = find('staff', el.dataset.id); openForm('Sửa nhân viên', staffFields(), x, d => Object.assign(x, d)); },
+  delStaff: el => del('staff', el.dataset.id, 'nhân viên'),
+  toggleStaff: el => { const x = find('staff', el.dataset.id); x.active = x.active === false; save(); render(); },
+  skipTurn: () => { const s = takeTurn(); save(); render(); toast(`Đã bỏ qua lượt của ${s?.name || ''}`); },
+
+  addTeam: () => {
+    if (!S.staff.length) return toast('Hãy thêm nhân viên sale trước');
+    openForm('Giao việc cho sale', teamFields(true), {}, d => {
+      if (d.staffId === 'auto') d.staffId = takeTurn()?.id || '';
+      const x = { id: uid(), ...d, status: 'todo', createdAt: nowIso(), log: [] };
+      logTeam(x, `Giao cho ${staffName(d.staffId)}`);
+      S.teamTasks.push(x);
+      setTimeout(() => {
+        const m = $('#modal');
+        m.innerHTML = `<div class="modal-box"><h3>✅ Đã giao việc cho ${esc(staffName(d.staffId))}</h3>
+          <p class="muted" style="margin-top:0">Gửi luôn cho nhân viên qua Zalo? Tin nhắn sẽ được sao chép sẵn để anh dán vào.</p>
+          <div class="row-end"><button class="btn ghost" data-close>Để sau</button><button class="btn primary" data-act="zaloTeam" data-id="${x.id}">Gửi Zalo</button></div></div>`;
+        m.hidden = false;
+        m.querySelector('[data-close]').onclick = closeModal;
+      }, 0);
+    });
+  },
+  editTeam: el => {
+    const x = find('teamTasks', el.dataset.id);
+    openForm('Sửa việc', teamFields(false), x, d => {
+      if (d.staffId !== x.staffId) logTeam(x, `Chuyển từ ${staffName(x.staffId)} sang ${staffName(d.staffId)}`);
+      Object.assign(x, d);
+    });
+  },
+  delTeam: el => del('teamTasks', el.dataset.id, 'việc'),
+  zaloTeam: el => {
+    closeModal();
+    const x = find('teamTasks', el.dataset.id);
+    const late = x.status !== 'done' && x.due && x.due < today();
+    logTeam(x, late ? 'Nhắc việc quá hạn qua Zalo' : 'Gửi việc qua Zalo');
+    save(); render();
+    sendZalo(S.staff.find(s => s.id === x.staffId)?.phone, (late ? '⚠️ NHẮC VIỆC QUÁ HẠN\n' : '') + teamMessage(x));
+  },
+
+  addFin: el => openForm(el.dataset.id === 'thu' ? 'Thêm khoản thu' : 'Thêm khoản chi', finFields(el.dataset.id), {}, d => S.finance.push({ id: uid(), type: el.dataset.id, ...d })),
+  editFin: el => { const x = find('finance', el.dataset.id); openForm('Sửa giao dịch', finFields(x.type), x, d => Object.assign(x, d)); },
+  delFin: el => del('finance', el.dataset.id, 'giao dịch'),
+
+  addHabit: () => openForm('Thêm thói quen', habitFields(), {}, d => S.habits.push({ id: uid(), ...d, days: {} })),
+  editHabit: el => { const x = find('habits', el.dataset.id); openForm('Sửa thói quen', habitFields(), x, d => Object.assign(x, d)); },
+  delHabit: el => del('habits', el.dataset.id, 'thói quen'),
+  toggleHabit: el => {
+    const h = find('habits', el.dataset.id), d = el.dataset.day;
+    h.days = h.days || {};
+    if (h.days[d]) delete h.days[d]; else h.days[d] = true;
+    save(); render();
+  },
+  sampleHabits: () => {
+    ['Uống 2 lít nước', 'Tập thể dục 30 phút', 'Ngủ trước 23h', 'Đọc sách 15 phút'].forEach(name => S.habits.push({ id: uid(), name, days: {} }));
+    save(); render();
+  },
+
+  addGoal: () => openForm('Thêm mục tiêu', goalFields(), {}, d => S.goals.push({ id: uid(), ...d, progress: Math.min(100, d.progress) })),
+  editGoal: el => { const x = find('goals', el.dataset.id); openForm('Sửa mục tiêu', goalFields(), x, d => Object.assign(x, d, { progress: Math.min(100, d.progress) })); },
+  delGoal: el => del('goals', el.dataset.id, 'mục tiêu'),
+  goalStep: el => { const g = find('goals', el.dataset.id); g.progress = Math.max(0, Math.min(100, (g.progress || 0) + Number(el.dataset.v))); save(); render(); },
+
+  addJournal: () => openForm('Nhật ký', journalFields(), {}, d => S.journal.push({ id: uid(), ...d })),
+  editJournal: el => { const x = find('journal', el.dataset.id); openForm('Sửa nhật ký', journalFields(), x, d => Object.assign(x, d)); },
+  delJournal: el => del('journal', el.dataset.id, 'nhật ký'),
+
+  backup: () => {
+    const blob = new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `quan-ly-cuoc-song-${today()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  },
+  restore: () => $('#restore-file').click(),
+  loadDemo: () => loadDemo(),
+  clearDemo: () => { if (confirm('Xóa toàn bộ dữ liệu mẫu? Dữ liệu anh tự nhập vẫn giữ nguyên.')) clearDemo(); },
+
+  syncSettings: () => {
+    const m = $('#modal');
+    m.innerHTML = `<div class="modal-box"><h3>☁️ Đồng bộ online</h3>
+      <p class="muted" style="margin-top:0;font-size:13.5px">Dùng chung dữ liệu giữa điện thoại và máy tính, tự nhận lead từ Pancake.
+        Dữ liệu lưu trong Google Drive của anh. Cách lấy 2 thông tin dưới đây: xem file HUONG-DAN.md.</p>
+      <form class="form" id="sform">
+        ${fieldHtml({ k: 'url', label: 'Đường dẫn Web App (https://script.google.com/...)', type: 'url', full: true, required: true }, SYNC.url)}
+        ${fieldHtml({ k: 'key', label: 'Mã bí mật', full: true, required: true }, SYNC.key)}
+        <div class="row-end">${SYNC.url ? '<button type="button" class="btn danger" data-act="syncOff">Ngắt kết nối</button>' : ''}
+          <button type="button" class="btn ghost" data-close>Đóng</button><button class="btn primary">Kết nối & đồng bộ</button></div>
+      </form></div>`;
+    m.hidden = false;
+    m.querySelector('[data-close]').onclick = closeModal;
+    $('#sform').onsubmit = e => {
+      e.preventDefault();
+      const f = e.target.elements, url = f.url.value.trim();
+      if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)) return toast('Đường dẫn phải bắt đầu bằng https://script.google.com/');
+      SYNC = { url, key: f.key.value.trim(), version: -1, dirty: true };
+      saveSync();
+      closeModal();
+      syncNow();
+    };
+  },
+  syncOff: () => {
+    if (!confirm('Ngắt đồng bộ? Dữ liệu trên máy này vẫn được giữ nguyên.')) return;
+    SYNC = {};
+    saveSync();
+    closeModal();
+    setSyncLabel('');
+    toast('Đã ngắt đồng bộ online');
+  }
+};
+
+function importCustomers(text, source, autoAssign) {
+  const res = { added: 0, dup: 0, bad: 0 };
+  const known = new Set(S.customers.map(c => normPhone(c.phone)).filter(Boolean));
+  const modelKey = s => s.toLowerCase().replace(/\s+/g, '');
+  text.split(/\r?\n/).map(l => l.trim()).filter(Boolean).forEach(line => {
+    const parts = line.split(/\t|,|;|\|/).map(s => s.trim()).filter(Boolean);
+    const phoneIdx = parts.findIndex(p => /^(\+?84|0)\d{8,10}$/.test(p.replace(/[\s.\-()]/g, '')));
+    if (phoneIdx < 0) { res.bad++; return; }
+    const phone = normPhone(parts[phoneIdx]);
+    if (known.has(phone)) { res.dup++; return; }
+    known.add(phone);
+    const rest = parts.filter((_, i) => i !== phoneIdx);
+    const modelIdx = rest.findIndex(p => CAR_MODELS.some(m => modelKey(m) === modelKey(p)));
+    const model = modelIdx >= 0 ? CAR_MODELS.find(m => modelKey(m) === modelKey(rest[modelIdx])) : 'Chưa rõ';
+    const others = rest.filter((_, i) => i !== modelIdx);
+    S.customers.push({
+      id: uid(), name: others[0] || 'Khách ' + phone.slice(-4), phone, model, source, status: 'moi',
+      saleId: autoAssign ? (takeTurn()?.id || '') : '', nextFollow: today(), deposit: 0, deliveryDate: '',
+      note: others.slice(1).join(', '), createdAt: nowIso()
+    });
+    res.added++;
+  });
+  return res;
+}
+
+// ===== Sự kiện =====
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const fn = ACTS[el.dataset.act];
+  if (fn) fn(el);
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.chg === 'custStatus') {
+    const c = find('customers', el.dataset.id);
+    c.status = el.value;
+    c.updatedAt = nowIso();
+    save(); render();
+    if (c.status === 'coc' && !c.deposit) ACTS.editCust({ dataset: { id: c.id } });
+  } else if (el.dataset.chg === 'teamStatus') {
+    const x = find('teamTasks', el.dataset.id);
+    x.status = el.value;
+    x.doneAt = x.status === 'done' ? nowIso() : '';
+    logTeam(x, 'Trạng thái: ' + label(TEAM_STATUS, x.status));
+    save(); render();
+  } else if (el.dataset.ui && el.type !== 'search') {
+    UI[el.dataset.ui] = el.value;
+    render();
+  }
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.ui === 'custSearch') {
+    UI.custSearch = el.value;
+    const pos = el.selectionStart;
+    render();
+    const again = document.querySelector('[data-ui="custSearch"]');
+    again.focus();
+    again.setSelectionRange(pos, pos);
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#modal').hidden) closeModal(); });
+$('#restore-file').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const d = JSON.parse(await file.text());
+    if (typeof d !== 'object' || !Array.isArray(d.tasks)) throw new Error('bad');
+    if (!confirm('Khôi phục sẽ thay thế toàn bộ dữ liệu hiện tại. Tiếp tục?')) return;
+    S = Object.assign(structuredClone(DEFAULT), d);
+    SNAP = {};
+    save(); render(); toast('Đã khôi phục dữ liệu');
+  } catch (err) {
+    toast('File sao lưu không hợp lệ');
+  } finally {
+    e.target.value = '';
+  }
+});
+
+// ===== Hiển thị =====
+function render() {
+  $('#today-label').textContent = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
+  $('#nav').innerHTML = TABS.map(([k, l]) => `<button class="${UI.tab === k ? 'on' : ''}" data-act="tab" data-v="${k}">${l}</button>`).join('');
+  $('#view').innerHTML = VIEWS[UI.tab]();
+  try { localStorage.setItem(KEY + '_tab', UI.tab); } catch (e) { /* bỏ qua */ }
+}
+ACTS.tab = el => { UI.tab = el.dataset.v; render(); window.scrollTo(0, 0); };
+try { const saved = localStorage.getItem(KEY + '_tab'); if (VIEWS[saved]) UI.tab = saved; } catch (e) { /* bỏ qua */ }
+snapshot();
+render();
+if (SYNC.url) syncNow();
+</script>
+</body>
+</html>
